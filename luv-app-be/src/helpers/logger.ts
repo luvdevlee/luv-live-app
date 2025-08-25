@@ -6,7 +6,7 @@ export const loggerConfig = WinstonModule.createLogger({
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.json()
+        winston.format.json(),
       ),
     }),
     new winston.transports.File({

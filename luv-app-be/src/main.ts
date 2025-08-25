@@ -9,21 +9,31 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Security middlewares
-  app.use(helmet({
-    crossOriginEmbedderPolicy: false,
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: [`'self'`],
-        imgSrc: [`'self'`, 'data:', 'apollo-server-landing-page.cdn.apollographql.com'],
-        scriptSrc: [`'self'`, `'unsafe-inline'`, 'https:'],
-        styleSrc: [`'self'`, `'unsafe-inline'`, 'https:'],
-        manifestSrc: [`'self'`, 'apollo-server-landing-page.cdn.apollographql.com'],
-        frameSrc: [`'self'`, 'sandbox.embed.apollographql.com'],
-        connectSrc: [`'self'`, 'https:', 'wss:'],
+  app.use(
+    helmet({
+      crossOriginEmbedderPolicy: false,
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          imgSrc: [
+            "'self'",
+            'data:',
+            'apollo-server-landing-page.cdn.apollographql.com',
+          ],
+          scriptSrc: [`'self'`, `'unsafe-inline'`, 'https:'],
+          styleSrc: [`'self'`, `'unsafe-inline'`, 'https:'],
+          manifestSrc: [
+            `'self'`,
+            'apollo-server-landing-page.cdn.apollographql.com',
+          ],
+          frameSrc: [`'self'`, 'sandbox.embed.apollographql.com'],
+          connectSrc: [`'self'`, 'https:', 'wss:'],
+        },
       },
-    },
-  }));
-  
+    }),
+  );
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   app.use(compression());
 
   // CORS configuration
@@ -31,16 +41,16 @@ async function bootstrap() {
     origin: environmentVariablesConfig.corsOrigin?.split(',') || [
       'http://localhost:3000',
       'http://localhost:3001',
-      'https://studio.apollographql.com'
+      'https://studio.apollographql.com',
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
-      'Content-Type', 
+      'Content-Type',
       'Authorization',
       'Apollo-Require-Preflight',
       'X-Apollo-Operation-Name',
-      'X-Requested-With'
+      'X-Requested-With',
     ],
   });
 
@@ -63,4 +73,4 @@ async function bootstrap() {
   console.log(`🎯 Application running on: http://localhost:${port}`);
 }
 
-bootstrap();
+void bootstrap();

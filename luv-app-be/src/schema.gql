@@ -2,9 +2,22 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-input CreateUserInput {
+input CreateStreamDto {
+  category: String!
+  description: String
+  scheduledAt: String
+  thumbnail: String
+  title: String!
+}
+
+input CreateStreamerDto {
+  bio: String
+  stageName: String!
+}
+
+input CreateUserDto {
   avatar: String
-  displayName: String
+  displayName: String!
   email: String!
   password: String!
   username: String!
@@ -16,15 +29,114 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type Mutation {
-  createUser(createUserInput: CreateUserInput!): User!
+  createStream(createStreamDto: CreateStreamDto!, streamerId: String!): StreamResponse!
+  createStreamer(createStreamerDto: CreateStreamerDto!, userId: String!): Streamer!
+  createUser(createUserDto: CreateUserDto!): UserResponse!
+  endStream(id: String!): StreamResponse!
+  removeStream(id: String!): StreamResponse!
+  removeStreamer(id: String!): Streamer!
+  removeUser(id: String!): UserResponse!
+  setPlaybackUrl(id: String!, playbackUrl: String!): StreamResponse!
+  startStream(id: String!): StreamResponse!
+  updateStream(id: String!, updateStreamDto: UpdateStreamDto!): StreamResponse!
+  updateStreamer(id: String!, updateStreamerDto: UpdateStreamerDto!): Streamer!
+  updateUser(id: String!, updateUserDto: UpdateUserDto!): UserResponse!
+  verifyStreamer(id: String!): Streamer!
 }
 
 type Query {
-  user(id: ID!): User!
-  users: [User!]!
+  liveStreams: [StreamResponse!]!
+  scheduledStreams: [StreamResponse!]!
+  stream(id: String!): StreamResponse!
+  streamer(id: String!): Streamer!
+  streamerByStageName(stageName: String!): Streamer!
+  streamerByUserId(userId: String!): Streamer!
+  streamers: [Streamer!]!
+  streams: [StreamResponse!]!
+  streamsByCategory(category: String!): [StreamResponse!]!
+  streamsByStreamer(streamerId: String!): [StreamResponse!]!
+  user(id: String!): UserResponse!
+  userByUsername(username: String!): UserResponse!
+  users: [UserResponse!]!
+  verifiedStreamers: [Streamer!]!
+}
+
+type StreamResponse {
+  _id: ID!
+  category: String!
+  createdAt: DateTime!
+  description: String
+  endedAt: DateTime
+  maxViewers: Float!
+  playbackUrl: String
+  scheduledAt: DateTime
+  startedAt: DateTime
+  status: StreamStatus!
+  streamKey: String
+  streamer: Streamer!
+  streamerId: ID!
+  thumbnail: String
+  title: String!
+  totalViewers: Float!
+  updatedAt: DateTime!
+}
+
+"""Stream status"""
+enum StreamStatus {
+  ENDED
+  LIVE
+  SCHEDULED
+}
+
+type Streamer {
+  _id: ID!
+  bio: String
+  createdAt: DateTime!
+  isVerified: Boolean!
+  stageName: String!
+  totalFollowers: Float!
+  totalViews: Float!
+  updatedAt: DateTime!
+  user: User!
+  userId: ID!
+}
+
+input UpdateStreamDto {
+  category: String
+  description: String
+  scheduledAt: String
+  thumbnail: String
+  title: String
+}
+
+input UpdateStreamerDto {
+  bio: String
+  isVerified: Boolean
+  stageName: String
+}
+
+input UpdateUserDto {
+  avatar: String
+  displayName: String
+  email: String
+  isActive: Boolean
+  username: String
 }
 
 type User {
+  _id: ID!
+  avatar: String
+  createdAt: DateTime!
+  displayName: String!
+  email: String!
+  isActive: Boolean!
+  lastLoginAt: DateTime
+  role: UserRole!
+  updatedAt: DateTime!
+  username: String!
+}
+
+type UserResponse {
   _id: ID!
   avatar: String
   createdAt: DateTime!

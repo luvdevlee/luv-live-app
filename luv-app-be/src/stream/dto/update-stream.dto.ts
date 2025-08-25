@@ -1,38 +1,32 @@
-import {
-  IsEmail,
-  IsString,
-  MinLength,
-  IsOptional,
-  IsBoolean,
-} from 'class-validator';
+import { IsString, MinLength, IsOptional, IsDateString } from 'class-validator';
 import { InputType, Field } from '@nestjs/graphql';
 
 @InputType()
-export class UpdateUserDto {
+export class UpdateStreamDto {
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
   @MinLength(3)
-  username?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsEmail()
-  email?: string;
+  title?: string;
 
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
-  avatar?: string;
+  description?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  thumbnail?: string;
 
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
   @MinLength(2)
-  displayName?: string;
+  category?: string;
 
   @Field({ nullable: true })
   @IsOptional()
-  @IsBoolean()
-  isActive?: boolean;
+  @IsDateString()
+  scheduledAt?: string;
 }

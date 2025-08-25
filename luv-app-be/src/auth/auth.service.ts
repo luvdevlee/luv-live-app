@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '@src/user/user.service';
 import { LoginInput } from '@src/auth/dto/login.input';
-import { CreateUserInput } from '@src/user/dto/create-user.dto';
+import { CreateUserDto } from '@src/user/dto/create-user.dto';
 import { User } from '@src/user/schemas/user.schema';
 import { AuthResponse } from '@src/auth/dto/auth.response';
 
@@ -9,13 +9,13 @@ import { AuthResponse } from '@src/auth/dto/auth.response';
 export class AuthService {
   constructor(private readonly userService: UserService) {}
 
-  async register(createUserInput: CreateUserInput): Promise<AuthResponse> {
+  async register(createUserDto: CreateUserDto): Promise<AuthResponse> {
     // Create user
-    const user = await this.userService.create(createUserInput);
-    
+    const user = await this.userService.create(createUserDto);
+
     // Generate tokens (implement JWT logic here)
     const tokens = this.generateTokens(user);
-    
+
     return {
       user,
       ...tokens,
@@ -25,14 +25,17 @@ export class AuthService {
   async login(loginInput: LoginInput): Promise<AuthResponse> {
     // Find user by email
     const user = await this.userService.findByEmail(loginInput.email);
-    
+
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
     // Validate password
-    const isPasswordValid = await this.userService.validatePassword(user, loginInput.password);
-    
+    const isPasswordValid = await this.userService.validatePassword(
+      user,
+      loginInput.password,
+    );
+
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -42,7 +45,7 @@ export class AuthService {
 
     // Generate tokens
     const tokens = this.generateTokens(user);
-    
+
     return {
       user,
       ...tokens,
@@ -53,7 +56,10 @@ export class AuthService {
     return this.userService.findOne(userId);
   }
 
-  private generateTokens(user: User): { accessToken: string; refreshToken: string } {
+  private generateTokens(user: User): {
+    accessToken: string;
+    refreshToken: string;
+  } {
     // TODO: Implement JWT token generation
     // This is a placeholder implementation
     return {

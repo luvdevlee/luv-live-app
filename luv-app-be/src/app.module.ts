@@ -6,8 +6,10 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { join } from 'path';
 
-import { UserModule } from '@src/user/user.module';
 import { environmentVariablesConfig } from '@src/config/app.config';
+import { StreamModule } from '@src/stream/stream.module';
+import { StreamerModule } from '@src/streamer/streamer.module';
+import { UserModule } from '@src/user/user.module';
 
 @Module({
   imports: [
@@ -16,7 +18,7 @@ import { environmentVariablesConfig } from '@src/config/app.config';
       envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
     }),
 
-    MongooseModule.forRoot(environmentVariablesConfig.mongodbUri || ""),
+    MongooseModule.forRoot(environmentVariablesConfig.mongodbUri || ''),
 
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
@@ -24,19 +26,23 @@ import { environmentVariablesConfig } from '@src/config/app.config';
       sortSchema: true,
 
       playground: false,
-      introspection: environmentVariablesConfig.nodeEnv !== "production",
+      introspection: environmentVariablesConfig.nodeEnv !== 'production',
 
       plugins: [
-        ...(environmentVariablesConfig.nodeEnv !== 'production' 
-          ? [ApolloServerPluginLandingPageLocalDefault({ 
-              embed: true,
-              includeCookies: true 
-            })]
-          : []
-        ),
+        ...(environmentVariablesConfig.nodeEnv !== 'production'
+          ? [
+              ApolloServerPluginLandingPageLocalDefault({
+                embed: true,
+                includeCookies: true,
+              }),
+            ]
+          : []),
       ],
 
-      context: ({ req, res }) => ({ req, res }),
+      context: ({ req, res }: { req: Request; res: Response }) => ({
+        req,
+        res,
+      }),
       formatError: (error) => {
         return {
           message: error.message,
@@ -55,6 +61,8 @@ import { environmentVariablesConfig } from '@src/config/app.config';
     }),
 
     UserModule,
+    StreamerModule,
+    StreamModule,
   ],
   controllers: [],
   providers: [],
