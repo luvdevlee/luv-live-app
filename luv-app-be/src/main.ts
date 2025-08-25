@@ -4,9 +4,23 @@ import { AppModule } from '@src/app.module';
 import helmet from 'helmet';
 import compression from 'compression';
 import { environmentVariablesConfig } from '@src/config/app.config';
+import session from 'express-session';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Add session middleware
+  app.use(
+    session({
+      secret: environmentVariablesConfig.jwtSecret,
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: environmentVariablesConfig.nodeEnv === 'production',
+        maxAge: 24 * 60 * 60 * 1000,
+      },
+    }),
+  );
 
   // Security middlewares
   app.use(
@@ -33,7 +47,6 @@ async function bootstrap() {
     }),
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   app.use(compression());
 
   // CORS configuration

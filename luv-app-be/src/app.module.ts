@@ -7,6 +7,7 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
 import { join } from 'path';
 
 import { environmentVariablesConfig } from '@src/config/app.config';
+import { AuthModule } from '@src/auth/auth.module';
 import { StreamModule } from '@src/stream/stream.module';
 import { StreamerModule } from '@src/streamer/streamer.module';
 import { UserModule } from '@src/user/user.module';
@@ -60,6 +61,7 @@ import { UserModule } from '@src/user/user.module';
       cache: 'bounded',
     }),
 
+    AuthModule,
     UserModule,
     StreamerModule,
     StreamModule,

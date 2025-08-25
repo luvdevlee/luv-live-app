@@ -27,8 +27,12 @@ export class User {
   @Prop({ required: true, unique: true })
   email: string;
 
-  @Prop({ required: true })
-  password: string; // Not exposed in GraphQL
+  @Field({ nullable: true })
+  @Prop({ unique: true, sparse: true })
+  googleId?: string;
+
+  @Prop({ required: false })
+  password?: string; // Not exposed in GraphQL, make optional for Google users
 
   @Field({ nullable: true })
   @Prop()

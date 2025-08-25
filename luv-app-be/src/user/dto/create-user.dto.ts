@@ -12,10 +12,15 @@ export class CreateUserDto {
   @IsEmail()
   email: string;
 
-  @Field()
+  @Field({ nullable: true })
+  @IsOptional()
   @IsString()
-  @MinLength(6)
-  password: string;
+  googleId?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  password?: string;
 
   @Field({ nullable: true })
   @IsOptional()

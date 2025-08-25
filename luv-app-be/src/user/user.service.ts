@@ -27,8 +27,11 @@ export class UserService {
       throw new ConflictException('Username or email already exists');
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    // Hash password if provided
+    let hashedPassword = '';
+    if (createUserDto.password) {
+      hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    }
 
     const createdUser = new this.userModel({
       ...createUserDto,
@@ -58,12 +61,55 @@ export class UserService {
     return user;
   }
 
-  async findByEmail(email: string): Promise<User> {
-    const user = await this.userModel.findOne({ email }).exec();
-    if (!user) {
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userModel.findOne({ email }).exec();
+  }
+
+  async findByUsernameOptional(username: string): Promise<User | null> {
+    return this.userModel.findOne({ username }).exec();
+  }
+
+  async findByGoogleId(googleId: string): Promise<User | null> {
+    return this.userModel.findOne({ googleId }).exec();
+  }
+
+  async createGoogleUser(createUserDto: CreateUserDto): Promise<User> {
+    // Check if email already exists
+    const existingUser = await this.userModel.findOne({
+      email: createUserDto.email,
+    });
+
+    if (existingUser) {
+      throw new ConflictException('Email already exists');
+    }
+
+    // Generate unique username if needed
+    let username = createUserDto.username;
+    let counter = 1;
+    while (await this.userModel.findOne({ username })) {
+      username = `${createUserDto.username}${counter}`;
+      counter++;
+    }
+
+    const createdUser = new this.userModel({
+      ...createUserDto,
+      username,
+      password: '', // No password for Google users
+    });
+
+    return createdUser.save();
+  }
+
+  async linkGoogleAccount(userId: string, googleId: string): Promise<User> {
+    const updatedUser = await this.userModel
+      .findByIdAndUpdate(userId, { googleId }, { new: true })
+      .exec();
+
+    if (!updatedUser) {
       throw new NotFoundException('User not found');
     }
-    return user;
+
+    return updatedUser;
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
@@ -118,6 +164,9 @@ export class UserService {
   }
 
   async validatePassword(user: User, password: string): Promise<boolean> {
+    if (!user.password) {
+      return false; // Google users don't have passwords
+    }
     return bcrypt.compare(password, user.password);
   }
 }
