@@ -1,0 +1,37 @@
+### Test GraphQL Query
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Apollo-Require-Preflight: true
+
+{
+  "query": "query { users { _id username email role } }"
+}
+
+###
+
+### Test GraphQL Mutation - Create User
+POST http://localhost:3000/graphql
+Content-Type: application/json
+X-Apollo-Operation-Name: CreateUser
+
+{
+  "query": "mutation CreateUser($input: CreateUserInput!) { createUser(createUserInput: $input) { _id username email role } }",
+  "variables": {
+    "input": {
+      "username": "testuser",
+      "email": "test@example.com",
+      "password": "password123",
+      "displayName": "Test User"
+    }
+  }
+}
+
+###
+
+### Test Health Check (if available)
+GET http://localhost:3000/graphql
+Content-Type: application/json
+
+{
+  "query": "{ __schema { types { name } } }"
+}
