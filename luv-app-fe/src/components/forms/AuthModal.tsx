@@ -14,8 +14,8 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    confirmPassword: '',
-    fullName: '',
+    userName: '',
+    displayName: '',
     agreeTerms: false
   });
 
@@ -26,8 +26,8 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
       setFormData({
         email: '',
         password: '',
-        confirmPassword: '',
-        fullName: '',
+        userName: '',
+        displayName: '',
         agreeTerms: false
       });
     }
@@ -108,22 +108,21 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="auth-form">
-            {mode === 'register' && (
               <div className="form-group">
-                <label htmlFor="fullName" className="form-label">Họ và tên</label>
+                <label htmlFor="userName" className="form-label">Username</label>
                 <input
                   type="text"
-                  id="fullName"
-                  name="fullName"
-                  value={formData.fullName}
+                  id="userName"
+                  name="userName"
+                  value={formData.userName}
                   onChange={handleInputChange}
                   className="form-input"
-                  placeholder="Nhập họ và tên của bạn"
+                  placeholder="Nhập username của bạn"
                   required
                 />
               </div>
-            )}
 
+            {mode === 'register' && (
             <div className="form-group">
               <label htmlFor="email" className="form-label">Email</label>
               <input
@@ -137,6 +136,23 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
                 required
               />
             </div>
+            )}
+
+            {mode === 'register' && (
+              <div className="form-group">
+              <label htmlFor="displayName" className="form-label">Tên hiển thị</label>
+              <input 
+                type="text" 
+                id="displayName"
+                name="displayName"
+                value={formData.displayName}
+                onChange={handleInputChange}
+                className="form-input"
+                placeholder="Nhập tên hiển thị của bạn"
+                required
+              />
+            </div>
+            )}
 
             <div className="form-group">
               <label htmlFor="password" className="form-label">Mật khẩu</label>
@@ -152,21 +168,6 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
               />
             </div>
 
-            {mode === 'register' && (
-              <div className="form-group">
-                <label htmlFor="confirmPassword" className="form-label">Xác nhận mật khẩu</label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  className="form-input"
-                  placeholder="Nhập lại mật khẩu"
-                  required
-                />
-              </div>
-            )}
 
             {mode === 'register' && (
               <div className="form-group checkbox-group">
@@ -193,7 +194,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
           <div className="auth-switch">
             {mode === 'login' ? (
               <p>
-                Chưa có tài khoản? 
+                Chưa có tài khoản?
                 <button 
                   onClick={() => setMode('register')}
                   className="switch-mode-btn"

@@ -26,4 +26,9 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   avatar?: string;
+  
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  displayName?: string;
 }

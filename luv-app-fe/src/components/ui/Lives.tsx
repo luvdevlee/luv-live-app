@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 
 interface LiveshowCard {
   id: string;
@@ -15,7 +14,7 @@ const liveshowData: LiveshowCard[] = [
   {
     id: "1",
     streamerName: "Nathan Nguyen",
-    title: "Coi tarrot",
+    title: "ABCDSSSS",
     profileImage: "https://scontent.fsgn8-3.fna.fbcdn.net/v/t39.30808-6/481080307_1692240728382080_3749027935326059149_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=111&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=20ezD5jCZg8Q7kNvwF55YKW&_nc_oc=AdliJ_cxzJvkB2wzwg6D_JmhHnYzLYBMLkJ3i7Wlt48pY1DXBy3NeV5bKKZxJTRwB3r9oinANpZlTh8FcXzzE9Xu&_nc_zt=23&_nc_ht=scontent.fsgn8-3.fna&_nc_gid=q0XMPCEd_dAn_uT4Mm0zcg&oh=00_AfU4zSCgiIpOg4nx758t1JGCfwgkmcwFdHIUz7gktigp_A&oe=68B245A0",
     viewers: 1247,
     category: "Live Idol"
@@ -78,18 +77,10 @@ const liveshowData: LiveshowCard[] = [
   },
   {
     id: "9",
-    streamerName: "Bella Rose",
-    title: "Chill cùng em",
-    profileImage: "https://picsum.photos/400/300?random=20",
-    viewers: 145,
-    category: "Live Idol"
-  },
-  {
-    id: "10",
-    streamerName: "Candy Sweet",
-    title: "Karaoke night",
-    profileImage: "https://picsum.photos/400/300?random=21",
-    viewers: 134,
+    streamerName: "Luming",
+    title: "Test",
+    profileImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7h9BQ-ir6YffxX7onxNsMi47Krd6y-Xae7A&s",
+    viewers: 81,
     category: "New Idol"
   }
 ];
@@ -107,19 +98,12 @@ export default function LiveshowSection() {
       <div className="liveshow-container">
         {/* Section Header */}
         <div className="section-header">
-          <h2 className="section-title">Liveshow</h2>
-          <p className="section-subtitle">Xem những liveshow hot nhất hiện tại</p>
-          <Link href="/liveshow" className="view-more-btn">
-            Xem thêm 
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="m9 18 6-6-6-6"/>
-            </svg>
-          </Link>
+          <h2 className="section-title">Tất cả livestream của các streamer</h2>
         </div>
 
         {/* Liveshow Cards Grid */}
         <div className="liveshow-grid">
-          {liveshowData.slice(0, 10).map((liveshow) => (
+          {liveshowData.map((liveshow) => (
             <div key={liveshow.id} className="liveshow-card">
               {/* Profile Image Section */}
               <div className="liveshow-image">
