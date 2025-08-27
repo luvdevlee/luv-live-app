@@ -152,8 +152,8 @@ fi
 
 # Build and start the application
 print_status "Building and starting the application..."
-docker-compose build
-docker-compose up -d
+sudo docker-compose build
+sudo docker-compose up -d
 
 # Wait for services to be ready
 print_status "Waiting for services to be ready..."
@@ -161,11 +161,11 @@ sleep 30
 
 # Check service status
 print_status "Checking service status..."
-docker-compose ps
+sudo docker-compose ps
 
 # Show logs
 print_status "Recent application logs:"
-docker-compose logs --tail=20 app
+sudo docker-compose logs --tail=20 app
 
 print_status "🎉 Deployment completed successfully!"
 echo ""
