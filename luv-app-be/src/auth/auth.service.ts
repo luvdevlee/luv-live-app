@@ -154,14 +154,9 @@ export class AuthService {
             `Creating new user from Google profile: ${googleProfile.email}`,
           );
 
-          const displayName =
-            `${googleProfile.firstName} ${googleProfile.lastName}`.trim() ||
-            googleProfile.email.split('@')[0];
-
           const createUserDto: CreateUserDto = {
             username: await this.generateUniqueUsername(googleProfile.email),
             email: googleProfile.email,
-            displayName,
             avatar: googleProfile.picture,
             googleId: googleProfile.googleId,
           };

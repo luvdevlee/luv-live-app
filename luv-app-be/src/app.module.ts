@@ -16,10 +16,10 @@ import { UserModule } from '@src/user/user.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
+      envFilePath: `.env.${process.env.NODE_ENV}`,
     }),
 
-    MongooseModule.forRoot(environmentVariablesConfig.mongodbUri || ''),
+    MongooseModule.forRoot(environmentVariablesConfig.mongodbUri!),
 
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

@@ -20,12 +20,11 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
 
   constructor() {
     super({
-      clientID: environmentVariablesConfig.googleClientId,
-      clientSecret: environmentVariablesConfig.googleClientSecret,
-      callbackURL: environmentVariablesConfig.googleCallbackUrl,
+      clientID: environmentVariablesConfig.googleClientId!,
+      clientSecret: environmentVariablesConfig.googleClientSecret!,
+      callbackURL: environmentVariablesConfig.googleCallbackUrl!,
       scope: ['email', 'profile'],
-      // Additional security options
-      state: true, // Enable CSRF protection
+      state: true,
     });
   }
 

@@ -38,9 +38,9 @@ export class User {
   @Prop()
   avatar?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Prop({ default: 'viewer' })
-  displayName: string;
+  displayName?: string;
 
   @Field(() => UserRole)
   @Prop({ enum: UserRole, default: UserRole.VIEWER })
