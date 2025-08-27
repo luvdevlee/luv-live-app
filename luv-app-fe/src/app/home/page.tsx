@@ -6,11 +6,12 @@ export default function HomePage() {
     <div>
       <Hero />
 
+      <LiveshowSection />
+
       <HotGameLives />
 
       <BestPerformance />
 
-      <LiveshowSection />
 
       <div className="h-[200px]">More content coming soon...</div>
 

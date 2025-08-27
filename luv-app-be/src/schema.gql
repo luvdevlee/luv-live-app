@@ -23,7 +23,7 @@ input CreateStreamerDto {
 
 input CreateUserDto {
   avatar: String
-  displayName: String!
+  displayName: String
   email: String!
   googleId: String
   password: String

@@ -27,8 +27,8 @@ export class CreateUserDto {
   @IsString()
   avatar?: string;
 
-  @Field()
+  @Field({ nullable: true })
+  @IsOptional()
   @IsString()
-  @MinLength(2)
-  displayName: string;
+  displayName?: string;
 }

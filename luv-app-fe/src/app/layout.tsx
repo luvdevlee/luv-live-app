@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Geist_Mono } from "next/font/google";
+import { Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import { AnimatedBackground } from "@/components/ui";
 import { ThemeProvider } from "@/lib/contexts/theme-context";
 
-const playfairDisplay = Playfair_Display({
-  variable: "--font-playfair",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${playfairDisplay.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${inter.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider>
           <AnimatedBackground />
           <Header />
