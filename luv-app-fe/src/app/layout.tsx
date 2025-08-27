@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Playfair_Display, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
+import { AnimatedBackground } from "@/components/ui";
 import { ThemeProvider } from "@/lib/contexts/theme-context";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const playfairDisplay = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
 });
 
@@ -29,10 +30,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${playfairDisplay.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider>
+          <AnimatedBackground />
           <Header />
-          <main style={{ paddingTop: "calc(var(--header-height)"}}>
+          <main style={{ paddingTop: "var(--header-height)" }}>
             {children}
           </main>
         </ThemeProvider>

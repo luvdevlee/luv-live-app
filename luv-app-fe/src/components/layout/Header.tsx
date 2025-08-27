@@ -1,14 +1,27 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/hooks";
+import { AuthModal } from "@/components/forms";
 
 export default function Header() {
   const { theme, toggleTheme } = useTheme();
   const pathname = usePathname();
+  const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: 'login' | 'register' }>({
+    isOpen: false,
+    mode: 'login'
+  });
 
-  // Navigation items
+  const openAuthModal = (mode: 'login' | 'register') => {
+    setAuthModal({ isOpen: true, mode });
+  };
+
+  const closeAuthModal = () => {
+    setAuthModal({ isOpen: false, mode: 'login' });
+  };
+
   const navItems = [
     { href: "/home", label: "Trang chủ" },
     { href: "/liveshow", label: "Liveshow" },
@@ -25,20 +38,18 @@ export default function Header() {
         boxShadow: "var(--header-shadow)"
       }}
     >
-      <div className="container mx-auto flex items-center justify-between px-6 h-full">
+      <div className="header-container">
         {/* Left Section - Logo & Navigation */}
         <div className="flex items-center gap-16">
-          {/* Logo */}
           <Link 
             href="/" 
-            className="text-2xl font-bold transition-colors"
+            className="logo-text text-2xl font-bold transition-colors"
             style={{ color: "var(--header-text)" }}
           >
-            Luv App
+            Luv Live
           </Link>
 
-          {/* Navigation with modern underline effect */}
-          <nav className="relative flex gap-8 font-medium">
+          <nav className="nav-items relative flex gap-8 font-medium">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               
@@ -82,12 +93,11 @@ export default function Header() {
 
         {/* Right Section - Search, Theme Toggle & Auth */}
         <div className="flex items-center gap-4">
-          {/* Search bar */}
           <div className="max-w-sm">
             <input
               type="text"
-              placeholder="  Tìm kiếm..."
-              className="w-48 px-4 py-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Tìm kiếm..."
+              className="search-input w-48 px-4 py-2 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
               style={{
                 backgroundColor: "var(--header-button-bg)",
                 color: "var(--header-text)",
@@ -116,14 +126,29 @@ export default function Header() {
           </button>
 
           {/* Auth buttons */}
-          <Link href="/register">
-            <button className="btn-gradient">Đăng ký</button>
-          </Link>
-          <Link href="/login">
-            <button className="btn-gradient">Đăng nhập</button>
-          </Link>
+          <div className="auth-buttons flex items-center gap-3">
+            <button 
+              onClick={() => openAuthModal('register')}
+              className="btn-gradient"
+            >
+              Đăng ký
+            </button>
+            <button 
+              onClick={() => openAuthModal('login')}
+              className="btn-gradient"
+            >
+              Đăng nhập
+            </button>
+          </div>
         </div>
       </div>
+      
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={authModal.isOpen}
+        onClose={closeAuthModal}
+        defaultMode={authModal.mode}
+      />
     </header>
   );
 }
