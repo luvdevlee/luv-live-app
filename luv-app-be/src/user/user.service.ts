@@ -42,7 +42,7 @@ export class UserService {
   }
 
   async findAll(): Promise<User[]> {
-    return this.userModel.find({ isActive: true }).exec();
+    return await this.userModel.find({ isActive: true }).lean();
   }
 
   async findOne(id: string): Promise<User> {

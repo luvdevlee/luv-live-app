@@ -12,7 +12,7 @@ async function bootstrap() {
   // Add session middleware
   app.use(
     session({
-      secret: environmentVariablesConfig.jwtSecret,
+      secret: environmentVariablesConfig.jwtSecret!,
       resave: false,
       saveUninitialized: false,
       cookie: {
@@ -51,11 +51,7 @@ async function bootstrap() {
 
   // CORS configuration
   app.enableCors({
-    origin: environmentVariablesConfig.corsOrigin?.split(',') || [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'https://studio.apollographql.com',
-    ],
+    origin: environmentVariablesConfig.corsOrigin!.split(','),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: [

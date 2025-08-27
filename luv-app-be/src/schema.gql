@@ -23,7 +23,6 @@ input CreateStreamerDto {
 
 input CreateUserDto {
   avatar: String
-  displayName: String!
   email: String!
   googleId: String
   password: String
@@ -144,7 +143,7 @@ type User {
   _id: ID!
   avatar: String
   createdAt: DateTime!
-  displayName: String!
+  displayName: String
   email: String!
   googleId: String
   isActive: Boolean!
