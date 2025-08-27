@@ -1,10 +1,13 @@
-# Multi-stage build for NestJS with GraphQL and MongoDB
-FROM node:18-alpine AS builder
+# Multi-stage build for production
+FROM node:20-alpine AS builder
 
+# Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
+
+# Install dependencies
 RUN npm ci --only=production && npm cache clean --force
 
 # Copy source code
@@ -14,28 +17,36 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 
-WORKDIR /app
-
-# Create non-root user for security
+# Create app user for security
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nestjs -u 1001
 
-# Copy built application
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install only production dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy built application from builder stage
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nestjs:nodejs /app/package*.json ./
+
+# Create necessary directories and set permissions
+RUN mkdir -p /app/logs && chown -R nestjs:nodejs /app
 
 # Switch to non-root user
 USER nestjs
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3000/graphql?query=%7B__typename%7D || exit 1
-
 # Expose port
 EXPOSE 3000
 
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })" || exit 1
+
 # Start the application
-CMD ["node", "dist/main.js"]
+CMD ["npm", "run", "start:prod"]
