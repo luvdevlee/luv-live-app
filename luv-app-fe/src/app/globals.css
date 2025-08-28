@@ -254,9 +254,7 @@ body {
 }
 
 /* Footer Sections */
-.footer-section {
-  
-}
+
 
 .footer-title {
   font-size: 1.1rem;
@@ -304,9 +302,6 @@ body {
 }
 
 /* Newsletter Section */
-.newsletter-section {
-  
-}
 
 .newsletter-title {
   font-size: 1rem;
@@ -369,9 +364,6 @@ body {
   font-size: 0.85rem;
 }
 
-.footer-copyright {
-  
-}
 
 .footer-legal {
   display: flex;
@@ -1704,7 +1696,6 @@ body {
   margin: 0 0 0.3rem 0;
   line-height: 1.4;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

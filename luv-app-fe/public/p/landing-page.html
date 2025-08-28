@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livestream Idol - Phí Thấp, Thu Nhập Cao!</title>
+    <meta name="description" content="Nền tảng livestream idol với phí hoa hồng thấp nhất thị trường. Tham gia ngay để tăng thu nhập!">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --neon-pink: #FF69B4;
+            --neon-cyan: #00FFFF;
+            --deep-purple: #800080;
+            --dark-bg: #0a0a0a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 50%, #0a0a1a 100%);
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        .orbitron {
+            font-family: 'Orbitron', monospace;
+        }
+        
+        /* Neon Glow Effects */
+        .neon-glow {
+            text-shadow: 0 0 5px var(--neon-pink), 0 0 10px var(--neon-pink), 0 0 15px var(--neon-pink), 0 0 20px var(--neon-pink);
+        }
+        
+        .neon-border {
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 0 0 10px var(--neon-cyan), inset 0 0 10px rgba(0, 255, 255, 0.1);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(45deg, var(--deep-purple), var(--neon-pink), var(--neon-cyan));
+            background-size: 300% 300%;
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        /* Particles Animation */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--neon-cyan);
+            border-radius: 50%;
+            animation: float 6s infinite linear;
+            box-shadow: 0 0 6px var(--neon-cyan);
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Hero Video Background */
+        .hero-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.3;
+            z-index: -1;
+        }
+        
+        /* Interactive Cards */
+        .flip-card {
+            background-color: transparent;
+            perspective: 1000px;
+            height: 300px;
+        }
+        
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+        
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .flip-card-front {
+            background: linear-gradient(135deg, rgba(255, 105, 180, 0.2), rgba(0, 255, 255, 0.2));
+            border: 1px solid var(--neon-pink);
+        }
+        
+        .flip-card-back {
+            background: linear-gradient(135deg, rgba(128, 0, 128, 0.3), rgba(255, 105, 180, 0.3));
+            transform: rotateY(180deg);
+            border: 1px solid var(--neon-cyan);
+        }
+        
+        /* Glowing Button */
+        .glow-btn {
+            background: linear-gradient(45deg, var(--neon-pink), var(--neon-cyan));
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glow-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 105, 180, 0.5), 0 0 30px var(--neon-pink);
+        }
+        
+        .glow-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .glow-btn:hover::before {
+            left: 100%;
+        }
+        
+        /* Countdown Timer */
+        .countdown {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .countdown-item {
+            background: rgba(255, 105, 180, 0.1);
+            border: 1px solid var(--neon-pink);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            min-width: 80px;
+        }
+        
+        .countdown-number {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem !important;
+            }
+            
+            .flip-card {
+                height: 250px;
+            }
+            
+            .countdown {
+                gap: 10px;
+            }
+            
+            .countdown-item {
+                padding: 10px;
+                min-width: 60px;
+            }
+            
+            .countdown-number {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* Scroll Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Navigation */
+        .nav-gradient {
+            background: linear-gradient(90deg, rgba(255, 105, 180, 0.1), rgba(0, 255, 255, 0.1));
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 105, 180, 0.3);
+        }
+        
+        /* Form Styling */
+        .form-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 10px;
+            padding: 12px 15px;
+            color: white;
+            width: 100%;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.3);
+        }
+        
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <!-- Particles Background -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- Navigation -->
+    <nav class="nav-gradient fixed w-full top-0 z-50 px-4 py-3">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="orbitron text-2xl font-bold neon-glow">LiveIdol</div>
+            <div class="hidden md:flex space-x-6">
+                <a href="#features" class="hover:text-pink-400 transition-colors">Tính Năng</a>
+                <a href="#benefits" class="hover:text-cyan-400 transition-colors">Lợi Ích</a>
+                <a href="#testimonials" class="hover:text-pink-400 transition-colors">Đánh Giá</a>
+                <a href="#register" class="hover:text-cyan-400 transition-colors">Đăng Ký</a>
+            </div>
+            <button class="md:hidden text-2xl" id="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <!-- Video Background Placeholder -->
+        <div class="hero-video bg-gradient-to-br from-purple-900 via-pink-900 to-cyan-900 opacity-30"></div>
+        
+        <div class="container mx-auto px-4 text-center z-10">
+            <h1 class="hero-title orbitron text-6xl md:text-8xl font-black mb-6 neon-glow">
+                LIVESTREAM IDOL
+            </h1>
+            <p class="text-2xl md:text-3xl mb-4 text-cyan-300">
+                Phí Thấp, Thu Nhập Cao!
+            </p>
+            <p class="text-lg md:text-xl mb-8 max-w-2xl mx-auto opacity-90">
+                Nền tảng livestream idol đầu tiên tại Việt Nam với phí hoa hồng chỉ 5% - thấp nhất thị trường!
+            </p>
+            
+            <!-- Countdown Timer -->
+            <div class="countdown mb-8">
+                <div class="countdown-item">
+                    <div class="countdown-number" id="days">15</div>
+                    <div class="text-sm">Ngày</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="hours">08</div>
+                    <div class="text-sm">Giờ</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="minutes">45</div>
+                    <div class="text-sm">Phút</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="seconds">30</div>
+                    <div class="text-sm">Giây</div>
+                </div>
+            </div>
+            
+            <button class="glow-btn text-xl px-8 py-4 mb-4" onclick="scrollToRegister()">
+                <i class="fas fa-rocket mr-2"></i>
+                Bắt Đầu Live Ngay!
+            </button>
+            <p class="text-sm text-cyan-300">🎉 Ưu đãi đặc biệt: Miễn phí 3 tháng đầu!</p>
+        </div>
+    </section>
+    
+    <!-- Problem Section -->
+    <section class="py-20 px-4 fade-in" id="problem">
+        <div class="container mx-auto text-center">
+            <h2 class="orbitron text-4xl md:text-5xl font-bold mb-12 neon-glow">
+                Bạn Đang Mất Tiền Vì Phí Cao?
+            </h2>
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <div class="neon-border rounded-lg p-6 bg-red-900/20">
+                        <h3 class="text-2xl font-bold text-red-400 mb-4">Các App Khác</h3>
+                        <ul class="space-y-3 text-left">
+                            <li class="flex items-center"><i class="fas fa-times text-red-400 mr-3"></i>Phí hoa hồng 20-30%</li>
+                            <li class="flex items-center"><i class="fas fa-times text-red-400 mr-3"></i>Rút tiền chậm 7-15 ngày</li>
+                            <li class="flex items-center"><i class="fas fa-times text-red-400 mr-3"></i>Hỗ trợ kém</li>
+                            <li class="flex items-center"><i class="fas fa-times text-red-400 mr-3"></i>Thuật toán không minh bạch</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div class="neon-border rounded-lg p-6 bg-green-900/20">
+                        <h3 class="text-2xl font-bold text-green-400 mb-4">LiveIdol</h3>
+                        <ul class="space-y-3 text-left">
+                            <li class="flex items-center"><i class="fas fa-check text-green-400 mr-3"></i>Chỉ 5% phí hoa hồng</li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-400 mr-3"></i>Rút tiền tức thì 24/7</li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-400 mr-3"></i>Hỗ trợ 1:1 chuyên nghiệp</li>
+                            <li class="flex items-center"><i class="fas fa-check text-green-400 mr-3"></i>AI tối ưu thu nhập</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Benefits Section -->
+    <section class="py-20 px-4 fade-in" id="benefits">
+        <div class="container mx-auto">
+            <h2 class="orbitron text-4xl md:text-5xl font-bold text-center mb-16 neon-glow">
+                Tại Sao Chọn LiveIdol?
+            </h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="flip-card">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fas fa-percentage text-6xl text-pink-400 mb-4"></i>
+                            <h3 class="text-2xl font-bold mb-2">Phí Thấp Nhất</h3>
+                            <p>Chỉ 5% phí hoa hồng</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h3 class="text-xl font-bold mb-4">Tiết Kiệm Tối Đa</h3>
+                            <p class="mb-4">Với 10 triệu doanh thu/tháng:</p>
+                            <p class="text-pink-400 font-bold">App khác: Mất 2-3 triệu</p>
+                            <p class="text-cyan-400 font-bold">LiveIdol: Chỉ mất 500k</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="flip-card">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fas fa-bolt text-6xl text-cyan-400 mb-4"></i>
+                            <h3 class="text-2xl font-bold mb-2">Rút Tiền Tức Thì</h3>
+                            <p>24/7 không giới hạn</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h3 class="text-xl font-bold mb-4">Thanh Toán Nhanh</h3>
+                            <p class="mb-4">Rút tiền mọi lúc mọi nơi:</p>
+                            <p class="text-cyan-400">✓ Chuyển khoản ngay lập tức</p>
+                            <p class="text-cyan-400">✓ Không phí rút tiền</p>
+                            <p class="text-cyan-400">✓ Hỗ trợ tất cả ngân hàng</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card 3 -->
+                <div class="flip-card">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <i class="fas fa-robot text-6xl text-pink-400 mb-4"></i>
+                            <h3 class="text-2xl font-bold mb-2">AI Thông Minh</h3>
+                            <p>Tối ưu thu nhập tự động</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h3 class="text-xl font-bold mb-4">Công Nghệ Tiên Tiến</h3>
+                            <p class="mb-4">AI phân tích và gợi ý:</p>
+                            <p class="text-pink-400">✓ Thời gian live tối ưu</p>
+                            <p class="text-pink-400">✓ Nội dung thu hút</p>
+                            <p class="text-pink-400">✓ Tăng fan tự nhiên</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Testimonials Section -->
+    <section class="py-20 px-4 fade-in" id="testimonials">
+        <div class="container mx-auto">
+            <h2 class="orbitron text-4xl md:text-5xl font-bold text-center mb-16 neon-glow">
+                Idol Nói Gì Về Chúng Tôi?
+            </h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="neon-border rounded-lg p-6 bg-gradient-to-br from-pink-900/20 to-purple-900/20">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-pink-400 to-cyan-400 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-star text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Minh Anh</h4>
+                            <p class="text-sm text-cyan-300">Top Idol</p>
+                        </div>
+                    </div>
+                    <p class="italic">"Thu nhập tăng 300% sau khi chuyển sang LiveIdol. Phí thấp, rút tiền nhanh, hỗ trợ tuyệt vời!"</p>
+                    <div class="flex text-yellow-400 mt-4">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                
+                <div class="neon-border rounded-lg p-6 bg-gradient-to-br from-cyan-900/20 to-blue-900/20">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-heart text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Thùy Linh</h4>
+                            <p class="text-sm text-pink-300">Rising Star</p>
+                        </div>
+                    </div>
+                    <p class="italic">"Từ khi dùng LiveIdol, mình tiết kiệm được hàng chục triệu mỗi tháng. Recommend 100%!"</p>
+                    <div class="flex text-yellow-400 mt-4">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                
+                <div class="neon-border rounded-lg p-6 bg-gradient-to-br from-purple-900/20 to-pink-900/20">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-crown text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Hoàng Nam</h4>
+                            <p class="text-sm text-purple-300">Streamer Pro</p>
+                        </div>
+                    </div>
+                    <p class="italic">"AI của LiveIdol giúp mình tối ưu thời gian live và tăng thu nhập gấp đôi. Quá đỉnh!"</p>
+                    <div class="flex text-yellow-400 mt-4">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Registration Section -->
+    <section class="py-20 px-4 fade-in" id="register">
+        <div class="container mx-auto max-w-2xl">
+            <h2 class="orbitron text-4xl md:text-5xl font-bold text-center mb-8 neon-glow">
+                Đăng Ký Ngay Hôm Nay!
+            </h2>
+            <p class="text-center text-xl mb-12 text-cyan-300">
+                🎁 Miễn phí 3 tháng đầu + Bonus 1 triệu khi đạt KPI
+            </p>
+            
+            <form class="neon-border rounded-lg p-8 bg-gradient-to-br from-purple-900/20 to-pink-900/20" id="registrationForm">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <input type="text" placeholder="Họ và tên *" class="form-input" required>
+                    <input type="tel" placeholder="Số điện thoại *" class="form-input" required>
+                </div>
+                <input type="email" placeholder="Email *" class="form-input" required>
+                <select class="form-input" required>
+                    <option value="">Kinh nghiệm livestream</option>
+                    <option value="new">Mới bắt đầu</option>
+                    <option value="1-6months">1-6 tháng</option>
+                    <option value="6months-1year">6 tháng - 1 năm</option>
+                    <option value="1year+">Trên 1 năm</option>
+                </select>
+                <select class="form-input" required>
+                    <option value="">Nền tảng hiện tại</option>
+                    <option value="tiktok">TikTok Live</option>
+                    <option value="facebook">Facebook Live</option>
+                    <option value="youtube">YouTube Live</option>
+                    <option value="other">Khác</option>
+                </select>
+                <textarea placeholder="Mục tiêu thu nhập mong muốn..." class="form-input h-24 resize-none"></textarea>
+                
+                <div class="flex items-center mb-6">
+                    <input type="checkbox" id="terms" class="mr-3" required>
+                    <label for="terms" class="text-sm">Tôi đồng ý với <a href="#" class="text-pink-400 hover:underline">Điều khoản sử dụng</a> và <a href="#" class="text-cyan-400 hover:underline">Chính sách bảo mật</a></label>
+                </div>
+                
+                <button type="submit" class="glow-btn w-full text-xl py-4">
+                    <i class="fas fa-rocket mr-2"></i>
+                    Đăng Ký Miễn Phí Ngay!
+                </button>
+                
+                <p class="text-center text-sm mt-4 text-gray-400">
+                    Đăng ký chỉ mất 30 giây • Hoàn toàn miễn phí • Không ràng buộc
+                </p>
+            </form>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="py-16 px-4 bg-gradient-to-t from-black to-purple-900/20">
+        <div class="container mx-auto">
+            <div class="grid md:grid-cols-4 gap-8 mb-12">
+                <div>
+                    <h3 class="orbitron text-2xl font-bold neon-glow mb-4">LiveIdol</h3>
+                    <p class="text-gray-400 mb-4">Nền tảng livestream idol #1 Việt Nam với phí hoa hồng thấp nhất thị trường.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-pink-400 hover:text-pink-300 text-2xl"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-cyan-400 hover:text-cyan-300 text-2xl"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" class="text-pink-400 hover:text-pink-300 text-2xl"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-cyan-400 hover:text-cyan-300 text-2xl"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-bold mb-4 text-pink-400">Sản Phẩm</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">Livestream Platform</a></li>
+                        <li><a href="#" class="hover:text-white">AI Analytics</a></li>
+                        <li><a href="#" class="hover:text-white">Creator Tools</a></li>
+                        <li><a href="#" class="hover:text-white">Mobile App</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-bold mb-4 text-cyan-400">Hỗ Trợ</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">Trung tâm trợ giúp</a></li>
+                        <li><a href="#" class="hover:text-white">Hướng dẫn sử dụng</a></li>
+                        <li><a href="#" class="hover:text-white">Liên hệ</a></li>
+                        <li><a href="#" class="hover:text-white">Báo cáo lỗi</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-bold mb-4 text-pink-400">Liên Hệ</h4>
+                    <div class="space-y-2 text-gray-400">
+                        <p><i class="fas fa-phone mr-2 text-cyan-400"></i>1900 1234</p>
+                        <p><i class="fas fa-envelope mr-2 text-pink-400"></i>support@liveidol.vn</p>
+                        <p><i class="fas fa-map-marker-alt mr-2 text-cyan-400"></i>TP. Hồ Chí Minh</p>
+                    </div>
+                    
+                    <!-- QR Code -->
+                    <div class="mt-6 p-4 neon-border rounded-lg bg-white/10 text-center hover:bg-white/20 transition-all cursor-pointer">
+                        <div class="w-20 h-20 mx-auto mb-2 bg-gradient-to-br from-pink-400 to-cyan-400 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-qrcode text-2xl text-white"></i>
+                        </div>
+                        <p class="text-xs">Quét QR để tải app</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Final CTA -->
+            <div class="text-center border-t border-pink-400/30 pt-8">
+                <button class="glow-btn text-2xl px-12 py-6 mb-4" onclick="scrollToRegister()">
+                    <i class="fas fa-star mr-2"></i>
+                    Bắt Đầu Live Ngay - Miễn Phí!
+                </button>
+                <p class="text-gray-400">© 2024 LiveIdol. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Particles Animation
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            
+            setInterval(() => {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particle.style.animationDelay = Math.random() * 2 + 's';
+                
+                particlesContainer.appendChild(particle);
+                
+                setTimeout(() => {
+                    particle.remove();
+                }, 6000);
+            }, 300);
+        }
+        
+        // Countdown Timer
+        function updateCountdown() {
+            const targetDate = new Date();
+            targetDate.setDate(targetDate.getDate() + 15);
+            targetDate.setHours(23, 59, 59, 999);
+            
+            setInterval(() => {
+                const now = new Date().getTime();
+                const distance = targetDate.getTime() - now;
+                
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                document.getElementById('days').textContent = days.toString().padStart(2, '0');
+                document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+                document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+                
+                if (distance < 0) {
+                    // Create confetti effect when countdown ends
+                    createConfetti();
+                }
+            }, 1000);
+        }
+        
+        // Scroll Animations
+        function handleScrollAnimations() {
+            const elements = document.querySelectorAll('.fade-in');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            elements.forEach(element => {
+                observer.observe(element);
+            });
+        }
+        
+        // Smooth Scroll
+        function scrollToRegister() {
+            document.getElementById('register').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+        
+        // Form Submission
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Create success animation
+            const button = e.target.querySelector('button[type="submit"]');
+            const originalText = button.innerHTML;
+            
+            button.innerHTML = '<i class="fas fa-check mr-2"></i>Đăng Ký Thành Công!';
+            button.style.background = 'linear-gradient(45deg, #00ff00, #00ffff)';
+            
+            // Create confetti effect
+            createConfetti();
+            
+            setTimeout(() => {
+                alert('🎉 Chúc mừng! Bạn đã đăng ký thành công. Team LiveIdol sẽ liên hệ trong 24h!');
+                button.innerHTML = originalText;
+                button.style.background = '';
+            }, 2000);
+        });
+        
+        // Confetti Effect
+        function createConfetti() {
+            const colors = ['#FF69B4', '#00FFFF', '#800080', '#FFD700'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'fixed';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = '-10px';
+                    confetti.style.width = '10px';
+                    confetti.style.height = '10px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = '50%';
+                    confetti.style.pointerEvents = 'none';
+                    confetti.style.zIndex = '9999';
+                    confetti.style.animation = 'float 3s linear forwards';
+                    
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 3000);
+                }, i * 50);
+            }
+        }
+        
+        // Mobile Menu
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            // Simple mobile menu toggle (you can expand this)
+            alert('Mobile menu - Tính năng sẽ được phát triển trong phiên bản tiếp theo!');
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            updateCountdown();
+            handleScrollAnimations();
+        });
+        
+        // Add hover effects for cards
+        document.querySelectorAll('.flip-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05)';
+                this.style.transition = 'transform 0.3s ease';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97413c79b5d82113',t:'MTc1NjAyMTU5MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

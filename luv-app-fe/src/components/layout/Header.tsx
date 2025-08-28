@@ -23,7 +23,7 @@ export default function Header() {
   };
 
   const navItems = [
-    { href: "/home", label: "Trang chủ" },
+    { href: "/", label: "Trang chủ" },
     { href: "/lives", label: "Lives"},
     { href: "/games", label: "Games" },
     { href: "/liveshow", label: "Liveshow" },
