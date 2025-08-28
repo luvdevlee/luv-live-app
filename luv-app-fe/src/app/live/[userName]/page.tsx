@@ -1,13 +1,13 @@
 import { notFound } from "next/navigation";
 
 interface LiveStreamPageProps {
-  params: {
+  params: Promise<{
     userName: string;
-  };
+  }>;
 }
 
-export default function LiveStreamPage({ params }: LiveStreamPageProps) {
-  const { userName } = params;
+export default async function LiveStreamPage({ params }: LiveStreamPageProps) {
+  const { userName } = await params;
 
   // TODO: Fetch streamer data based on userName
   // For now, we'll show a placeholder
@@ -16,6 +16,17 @@ export default function LiveStreamPage({ params }: LiveStreamPageProps) {
   }
 
   return (
-    <div>Live Stream Page của {userName}</div>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">
+            Live Stream của {userName}
+          </h1>
+          <p className="text-muted-foreground">
+            Trang livestream đang được phát triển...
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
