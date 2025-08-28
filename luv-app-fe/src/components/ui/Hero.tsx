@@ -11,6 +11,20 @@ export default function Hero() {
         <div className="banner-content">
           {/* Left Side - Large Livestream Player */}
           <div className="livestream-player">
+            {/* Ads Player */}
+            <div className="ads-player">
+              <a 
+                href="https://qc.rikvip.win/?a=9278bbe646650a8324e009b01ca4f150&utm_source=animevietsubapp&utm_medium=topbanner2&utm_campaign=cpd&utm_term=phim" 
+                target="_blank" rel="noopener noreferrer" className="ads-link"
+              >
+                <img 
+                  src="https://lh3.googleusercontent.com/7u-W_Hd5FW82Ag7fAHs-iTRH9ZWAB-YES1QEKQ2GUhG9Q4cljk8XZRTsljNn0-jeM9jFbKmyUiaCg-voFdJaMTeQEAc8TMx0Xj9O-NZBXPChvROulAPLc1XS6_pp=s0" 
+                  alt="Advertisement Banner"
+                  className="ads-banner"
+                />
+              </a>
+            </div>
+            
             {/* Video Player Area */}
             <div className="video-player">
               <div className="video-overlay">
@@ -22,17 +36,6 @@ export default function Hero() {
                 <div className="video-message">
                   <p>Click to play</p>
                 </div>
-              </div>
-              
-              {/* Live Badge */}
-              <div className="live-badge-overlay">
-                <span className="live-dot"></span>
-                LIVE
-              </div>
-              
-              {/* Viewer Count */}
-              <div className="viewer-count-overlay">
-                👁️ 1,234
               </div>
             </div>
             
