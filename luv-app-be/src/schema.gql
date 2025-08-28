@@ -16,17 +16,14 @@ input CreateStreamDto {
   title: String!
 }
 
-input CreateStreamerDto {
-  bio: String
-  stageName: String!
-}
-
 input CreateUserDto {
-  avatar: String
-  displayName: String
+  avatar_url: String
+  display_name: String
   email: String!
-  googleId: String
+  google_id: String
+  is_active: Boolean
   password: String
+  role: UserRole
   username: String!
 }
 
@@ -41,41 +38,74 @@ input LoginInput {
 }
 
 type Mutation {
+  """Change user password"""
+  changePassword(newPassword: String!, oldPassword: String!): Boolean!
   createStream(createStreamDto: CreateStreamDto!, streamerId: String!): StreamResponse!
-  createStreamer(createStreamerDto: CreateStreamerDto!, userId: String!): Streamer!
+
+  """Create a new user (admin only)"""
   createUser(createUserDto: CreateUserDto!): UserResponse!
+
+  """Demote user to viewer (admin only)"""
+  demoteToViewer(userId: String!): UserResponse!
   endStream(id: String!): StreamResponse!
   login(loginInput: LoginInput!): AuthResponse!
   logout: Boolean!
+
+  """Promote user to admin (admin only)"""
+  promoteToAdmin(userId: String!): UserResponse!
+
+  """Promote user to streamer (admin only)"""
+  promoteToStreamer(userId: String!): UserResponse!
   refreshTokens(refreshToken: String!): AuthResponse!
   register(createUserDto: CreateUserDto!): AuthResponse!
+
+  """Register a new user account"""
+  registerUser(registerUserDto: RegisterUserDto!): UserResponse!
   removeStream(id: String!): StreamResponse!
-  removeStreamer(id: String!): Streamer!
+
+  """Deactivate user account (admin only)"""
   removeUser(id: String!): UserResponse!
   setPlaybackUrl(id: String!, playbackUrl: String!): StreamResponse!
   startStream(id: String!): StreamResponse!
+
+  """Update current user profile"""
+  updateMyProfile(updateUserDto: UpdateUserDto!): UserResponse!
   updateStream(id: String!, updateStreamDto: UpdateStreamDto!): StreamResponse!
-  updateStreamer(id: String!, updateStreamerDto: UpdateStreamerDto!): Streamer!
+
+  """Update user profile"""
   updateUser(id: String!, updateUserDto: UpdateUserDto!): UserResponse!
-  verifyStreamer(id: String!): Streamer!
 }
 
 type Query {
   liveStreams: [StreamResponse!]!
-  me: User!
+
+  """Get current user profile"""
+  me: UserResponse!
   scheduledStreams: [StreamResponse!]!
   stream(id: String!): StreamResponse!
-  streamer(id: String!): Streamer!
-  streamerByStageName(stageName: String!): Streamer!
-  streamerByUserId(userId: String!): Streamer!
-  streamers: [Streamer!]!
   streams: [StreamResponse!]!
   streamsByCategory(category: String!): [StreamResponse!]!
   streamsByStreamer(streamerId: String!): [StreamResponse!]!
+
+  """Get user by ID"""
   user(id: String!): UserResponse!
+
+  """Get user by username (public)"""
   userByUsername(username: String!): UserResponse!
+
+  """Get user statistics (admin only)"""
+  userStats: UserStatsResponse!
+
+  """Get all active users"""
   users: [UserResponse!]!
-  verifiedStreamers: [Streamer!]!
+}
+
+input RegisterUserDto {
+  avatar_url: String
+  display_name: String
+  email: String!
+  password: String!
+  username: String!
 }
 
 type StreamResponse {
@@ -90,7 +120,6 @@ type StreamResponse {
   startedAt: DateTime
   status: StreamStatus!
   streamKey: String
-  streamer: Streamer!
   streamerId: ID!
   thumbnail: String
   title: String!
@@ -105,19 +134,6 @@ enum StreamStatus {
   SCHEDULED
 }
 
-type Streamer {
-  _id: ID!
-  bio: String
-  createdAt: DateTime!
-  isVerified: Boolean!
-  stageName: String!
-  totalFollowers: Float!
-  totalViews: Float!
-  updatedAt: DateTime!
-  user: User!
-  userId: ID!
-}
-
 input UpdateStreamDto {
   category: String
   description: String
@@ -126,44 +142,41 @@ input UpdateStreamDto {
   title: String
 }
 
-input UpdateStreamerDto {
-  bio: String
-  isVerified: Boolean
-  stageName: String
-}
-
 input UpdateUserDto {
-  avatar: String
-  displayName: String
+  avatar_url: String
+  display_name: String
   email: String
-  isActive: Boolean
+  google_id: String
+  is_active: Boolean
+  role: UserRole
   username: String
 }
 
 type User {
   _id: ID!
-  avatar: String
-  createdAt: DateTime!
-  displayName: String
+  avatar_url: String
+  created_at: DateTime!
+  display_name: String
   email: String!
-  googleId: String
-  isActive: Boolean!
-  lastLoginAt: DateTime
+  google_id: String
+  is_active: Boolean!
+  last_login_at: DateTime
   role: UserRole!
-  updatedAt: DateTime!
+  updated_at: DateTime!
   username: String!
 }
 
 type UserResponse {
   _id: ID!
-  avatar: String
-  createdAt: DateTime!
-  displayName: String!
+  avatar_url: String
+  created_at: DateTime!
+  display_name: String
   email: String!
-  isActive: Boolean!
-  lastLoginAt: DateTime
+  google_id: String
+  is_active: Boolean!
+  last_login_at: DateTime
   role: UserRole!
-  updatedAt: DateTime!
+  updated_at: DateTime!
   username: String!
 }
 
@@ -172,4 +185,12 @@ enum UserRole {
   ADMIN
   STREAMER
   VIEWER
+}
+
+type UserStatsResponse {
+  activeUsers: Int!
+  admins: Int!
+  streamers: Int!
+  totalUsers: Int!
+  viewers: Int!
 }

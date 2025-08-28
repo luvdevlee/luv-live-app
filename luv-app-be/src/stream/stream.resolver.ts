@@ -10,14 +10,11 @@ import { StreamService } from './stream.service';
 import { CreateStreamDto } from './dto/create-stream.dto';
 import { UpdateStreamDto } from './dto/update-stream.dto';
 import { StreamResponse } from './dto/stream.response';
-import { Streamer } from '../streamer/schemas/streamer.schema';
-import { StreamerService } from '../streamer/streamer.service';
 
 @Resolver(() => StreamResponse)
 export class StreamResolver {
   constructor(
     private readonly streamService: StreamService,
-    private readonly streamerService: StreamerService,
   ) {}
 
   @Mutation(() => StreamResponse)
@@ -89,10 +86,5 @@ export class StreamResolver {
     @Args('playbackUrl', { type: () => String }) playbackUrl: string,
   ) {
     return this.streamService.setPlaybackUrl(id, playbackUrl);
-  }
-
-  @ResolveField(() => Streamer, { name: 'streamer' })
-  async getStreamer(@Parent() stream: StreamResponse) {
-    return this.streamerService.findOne(stream.streamerId.toString());
   }
 }

@@ -118,11 +118,11 @@ export class AuthController {
           id: user._id,
           email: user.email,
           username: user.username,
-          displayName: user.displayName,
-          avatar: user.avatar,
+          display_name: user.display_name,
+          avatar_url: user.avatar_url,
           role: user.role,
-          lastLoginAt: user.lastLoginAt,
-          createdAt: user.createdAt,
+          last_login_at: user.last_login_at,
+          created_at: user.created_at,
         },
       };
     } catch (error) {

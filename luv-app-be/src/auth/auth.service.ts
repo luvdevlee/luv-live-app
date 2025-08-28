@@ -82,7 +82,7 @@ export class AuthService {
       }
 
       // Check if user is active
-      if (!user.isActive) {
+      if (!user.is_active) {
         this.logger.warn(
           `Login attempt for deactivated user: ${loginInput.email}`,
         );
@@ -132,7 +132,7 @@ export class AuthService {
 
         if (existingUser) {
           // Link Google account to existing user if no Google ID
-          if (!existingUser.googleId) {
+          if (!existingUser.google_id) {
             this.logger.log(
               `Linking Google account to existing user: ${googleProfile.email}`,
             );
@@ -157,8 +157,8 @@ export class AuthService {
           const createUserDto: CreateUserDto = {
             username: await this.generateUniqueUsername(googleProfile.email),
             email: googleProfile.email,
-            avatar: googleProfile.picture,
-            googleId: googleProfile.googleId,
+            avatar_url: googleProfile.picture,
+            google_id: googleProfile.googleId,
           };
 
           user = await this.userService.createGoogleUser(createUserDto);
@@ -166,7 +166,7 @@ export class AuthService {
       }
 
       // Verify user is active
-      if (!user.isActive) {
+      if (!user.is_active) {
         this.logger.warn(
           `Google login attempt for deactivated user: ${user.email}`,
         );
@@ -216,7 +216,7 @@ export class AuthService {
     try {
       const user = await this.userService.findOne(userId);
 
-      if (!user.isActive) {
+      if (!user.is_active) {
         throw new UnauthorizedException('User account is deactivated');
       }
 
