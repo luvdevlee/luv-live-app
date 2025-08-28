@@ -569,7 +569,7 @@ body {
 .hero-banner-section {
   width: 100%;
   position: relative;
-  margin-top: 0;
+  margin-top: 0px;
 }
 
 .hero-banner {
@@ -587,7 +587,7 @@ body {
 .hero-banner::before {
   content: '';
   position: absolute;
-  top: 0;
+  top: 0px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -631,16 +631,16 @@ body {
 /* Large Livestream Player */
 .livestream-player {
   flex: 1;
-  max-width: 1000px;
+  max-width: 1200px;
   background: rgba(0, 0, 0, 0.9);
   border-radius: 12px;
   overflow: hidden;
   border: 2px solid rgba(255, 255, 255, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  height: 600px;
+  height: 650px;
   display: flex;
   flex-direction: column;
-  min-height: 600px;
+  min-height: 650px;
 }
 
 .livestream-player:hover {
@@ -1023,7 +1023,7 @@ body {
 /* Section Header */
 .section-header {
   text-align: left;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -1199,6 +1199,56 @@ body {
 }
 
 /* Responsive Design */
+@media (min-width: 2000px) {
+  .hot-games-section {
+    padding: 4rem 0;
+  }
+  
+  .hot-games-container {
+    max-width: 1800px;
+    padding: 0 2rem;
+  }
+  
+  .section-title {
+    font-size: 3rem;
+  }
+  
+  .section-subtitle {
+    font-size: 1.25rem;
+  }
+  
+  .game-cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2.5rem;
+  }
+  
+  .game-image {
+    height: 250px;
+  }
+  
+  .game-info {
+    padding: 2rem;
+  }
+  
+  .game-name {
+    font-size: 1.5rem;
+  }
+  
+  .streamers-count {
+    font-size: 1rem;
+  }
+  
+  .play-button {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .play-button svg {
+    width: 80px;
+    height: 80px;
+  }
+}
+
 @media (max-width: 1024px) {
   .hot-games-section {
     padding: 3rem 0;
@@ -1494,6 +1544,60 @@ body {
 }
 
 /* Responsive Design */
+@media (min-width: 2000px) {
+  .best-performance-section {
+    padding: 4rem 0;
+  }
+  
+  .best-performance-container {
+    max-width: 1800px;
+    padding: 0 2rem;
+  }
+  
+  .leaderboards-grid {
+    gap: 3rem;
+  }
+  
+  .leaderboard-header {
+    padding: 2rem;
+  }
+  
+  .leaderboard-title {
+    font-size: 1.5rem;
+  }
+  
+  .leaderboard-subtitle {
+    font-size: 1rem;
+  }
+  
+  .leaderboard-item {
+    grid-template-columns: 80px 1fr 120px 50px;
+    padding: 1.5rem 2rem;
+    gap: 1.5rem;
+  }
+  
+  .rank-number {
+    font-size: 2rem;
+  }
+  
+  .streamer-avatar {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .streamer-name {
+    font-size: 1.1rem;
+  }
+  
+  .stat-value {
+    font-size: 1.25rem;
+  }
+  
+  .stat-label {
+    font-size: 0.8rem;
+  }
+}
+
 @media (max-width: 1024px) {
   .best-performance-section {
     padding: 3rem 0;
@@ -1608,7 +1712,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   position: relative;
 }
 
@@ -1878,6 +1982,48 @@ body {
 }
 
 /* Responsive Design */
+@media (min-width: 2000px) {
+  .liveshow-section {
+    padding: 3rem 0;
+  }
+  
+  .liveshow-container {
+    max-width: 1800px;
+    padding: 0 2rem;
+  }
+  
+  .liveshow-grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1rem;
+  }
+  
+  .liveshow-image {
+    height: 200px;
+  }
+  
+  .liveshow-info {
+    padding: 1rem;
+  }
+  
+  .streamer-name {
+    font-size: 1rem;
+  }
+  
+  .liveshow-title {
+    font-size: 0.8rem;
+  }
+  
+  .liveshow-category {
+    font-size: 0.75rem;
+  }
+  
+  .follow-btn-small,
+  .watch-btn-small {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.7rem;
+  }
+}
+
 @media (max-width: 1200px) {
   .liveshow-grid {
     grid-template-columns: repeat(4, 1fr);
@@ -2544,6 +2690,40 @@ a {
 }
 
 /* Responsive Design */
+@media (min-width: 2000px) {
+  .header-container {
+    max-width: 1800px;
+    padding: 0 2rem;
+  }
+  
+  .logo-text {
+    font-size: 2.5rem;
+  }
+  
+  .nav-items {
+    gap: 3rem;
+  }
+  
+  .nav-item {
+    font-size: 1.1rem;
+  }
+  
+  .search-input {
+    width: 300px;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+  }
+  
+  .auth-buttons {
+    gap: 1rem;
+  }
+  
+  .auth-buttons button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+}
+
 @media (max-width: 1024px) {
   .header-container {
     padding: 0 1rem;
@@ -2631,6 +2811,62 @@ canvas {
 }
 
 /* Responsive Design for Hero Layout */
+@media (min-width: 2000px) {
+  .banner-content {
+    max-width: 1800px;
+    padding: 0 2rem;
+  }
+  
+  .livestream-player {
+    max-width: 1400px;
+    height: 800px;
+    min-height: 800px;
+  }
+  
+  .banner-sidebar {
+    width: 400px;
+    height: 800px;
+    min-height: 800px;
+  }
+  
+  .banner-card {
+    height: 150px;
+  }
+  
+  .video-player {
+    height: 500px;
+    min-height: 500px;
+  }
+  
+  .ads-player {
+    height: 120px;
+  }
+  
+  .stream-info-bar {
+    height: 80px;
+    padding: 1.25rem;
+  }
+  
+  .streamer-avatar {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .streamer-name {
+    font-size: 1.5rem;
+  }
+  
+  .stream-title {
+    font-size: 1.1rem;
+  }
+  
+  .follow-btn,
+  .watch-btn {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+  }
+}
+
 @media (max-width: 1200px) {
   .banner-content {
     max-width: 1100px;
@@ -2683,11 +2919,11 @@ canvas {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   overflow: hidden;
-  height: 600px;
+  height: 650px;
   display: flex;
   flex-direction: column;
   align-self: stretch;
-  min-height: 600px;
+  min-height: 650px;
 }
 
 /* Banner Grid */
