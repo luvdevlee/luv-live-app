@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, ChevronDown } from "lucide-react";
 import { useTheme } from "@/hooks";
 import { AuthModal } from "@/components/forms";
 
@@ -13,6 +13,7 @@ export default function Header() {
     isOpen: false,
     mode: 'login'
   });
+  const [livesDropdown, setLivesDropdown] = useState(false);
 
   const openAuthModal = (mode: 'login' | 'register') => {
     setAuthModal({ isOpen: true, mode });
@@ -24,10 +25,18 @@ export default function Header() {
 
   const navItems = [
     { href: "/", label: "Trang chủ" },
-    { href: "/lives", label: "Lives"},
-    { href: "/games", label: "Games" },
-    { href: "/liveshow", label: "Liveshow" },
+    { 
+      href: "/lives", 
+      label: "Lives",
+      hasDropdown: true,
+      dropdownItems: [
+        { href: "/liveshow", label: "Liveshow" },
+        { href: "/games", label: "Games" }
+      ]
+    },
   ];
+
+  const isLivesActive = pathname === "/lives" || pathname === "/liveshow" || pathname === "/games";
 
   return (
     <header
@@ -53,6 +62,85 @@ export default function Header() {
           <nav className="nav-items relative flex gap-8 font-medium">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
+              
+              if (item.hasDropdown) {
+                return (
+                  <div 
+                    key={item.href}
+                    className="nav-item relative py-2 transition-colors duration-200 group"
+                    onMouseEnter={() => setLivesDropdown(true)}
+                    onMouseLeave={() => setLivesDropdown(false)}
+                  >
+                    <div className="flex items-center gap-1">
+                      <Link
+                        href={item.href}
+                        className="transition-colors duration-200"
+                        style={{ 
+                          color: isLivesActive ? "var(--header-text)" : "var(--header-text-muted)"
+                        }}
+                      >
+                        {item.label}
+                      </Link>
+                      <ChevronDown 
+                        size={16} 
+                        className={`transition-transform duration-200 ${livesDropdown ? 'rotate-180' : ''}`}
+                        style={{ 
+                          color: isLivesActive ? "var(--header-text)" : "var(--header-text-muted)"
+                        }}
+                      />
+                    </div>
+                    
+                    {/* Underline effect */}
+                    <span 
+                      className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 ease-out ${
+                        isLivesActive ? 'w-full' : 'w-0 group-hover:w-full'
+                      }`}
+                      style={{
+                        background: isLivesActive 
+                          ? 'linear-gradient(90deg, var(--primary), #8b5cf6)' 
+                          : 'linear-gradient(90deg, var(--primary), #8b5cf6)'
+                      }}
+                    />
+                    
+                    {/* Subtle glow effect for active state */}
+                    {isLivesActive && (
+                      <span 
+                        className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-sm"
+                        style={{
+                          background: 'linear-gradient(90deg, rgba(59, 130, 246, 0.3), rgba(139, 92, 246, 0.3))'
+                        }}
+                      />
+                    )}
+
+                    {/* Dropdown Menu */}
+                    {livesDropdown && (
+                      <div 
+                        className="absolute top-full left-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50"
+                        onMouseEnter={() => setLivesDropdown(true)}
+                        onMouseLeave={() => setLivesDropdown(false)}
+                      >
+                        {item.dropdownItems?.map((dropdownItem) => {
+                          const isDropdownActive = pathname === dropdownItem.href;
+                          
+                          return (
+                            <Link
+                              key={dropdownItem.href}
+                              href={dropdownItem.href}
+                              className={`block px-4 py-2 text-sm transition-colors duration-200 ${
+                                isDropdownActive 
+                                  ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20' 
+                                  : 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                              }`}
+                            >
+                              {dropdownItem.label}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
               
               return (
                 <Link
