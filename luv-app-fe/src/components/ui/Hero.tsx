@@ -1,6 +1,7 @@
 "use client";
 
 import BannerSidebar from "./BannerSidebar";
+import Image from "next/image";
 
 export default function Hero() {
   return (
@@ -39,9 +40,12 @@ export default function Hero() {
             <div className="stream-info-bar">
               <div className="streamer-section">
                 <div className="streamer-avatar">
-                  <img 
+                  <Image 
                     src="https://static1.dienanh.net/upload/202203/723d998d-893b-4c79-a912-b43f5b01930a.jpg" 
-                    alt="Miu Moon " 
+                    alt="Miu Moon "
+                    width={100}
+                    height={100}
+                    unoptimized
                   />
                 </div>
                 <div className="streamer-info">

@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 interface BannerEvent {
   id: string;
   image: string;
@@ -30,10 +32,13 @@ export default function BannerSidebar() {
       <div className="banner-grid">
         {bannerEvents.map((event) => (
           <div key={event.id} className="banner-card">
-            <img 
+            <Image 
               src={event.image} 
               alt="Banner"
               className="banner-img"
+              width={300}
+              height={200}
+              unoptimized
             />
           </div>
         ))}
