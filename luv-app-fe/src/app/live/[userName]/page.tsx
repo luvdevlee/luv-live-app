@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import "./livestream.css";
 import { Streamer } from "@/types/streamer";
-import Image from "next/image";
+import LuvRoomTheaterSection from "@/components/layout/LuvRoomTheaterSection";
+import ReplayVideoSection from "@/components/layout/ReplayVideoSection";
+import LiveChat from "@/components/layout/LiveChat";
 
 interface LiveStreamPageProps {
   params: Promise<{
@@ -42,53 +44,15 @@ export default async function LiveStreamPage({ params }: LiveStreamPageProps) {
     <div className="livestream-container">
       <div className="luv-room_main_container">
         <div className="stream-content">
-          <div className="stream-header">
-            <div className="user-profile-section">
-              <div className="user-avatar">
-                <img
-                  src={streamer.avatar}
-                  alt={`${streamer.displayName} avatar`}
-                  width={48}
-                  height={48}
-                  className="avatar-image"
-                />
-                <div className="live-indicator"></div>
-              </div>
-              <h1 className="user-display-name">
-                {streamer.displayName}
-              </h1>
-            </div>
-            <div className="stream-info">
-              <div className="stream-info-item">
-                <span className="stream-title-main">{streamer.streamTitle}</span>
-              </div>
-              <div className="stream-info-item">
-                <span className="stream-category">{streamer.category}</span>
-              </div>
-              <div className="stream-info-item">
-                <span className="viewer-count">👥 1,234 viewers</span>
-              </div>
-              <div className="stream-info-item">
-                <span className="streamer-followers">❤️ {streamer.followers.toLocaleString()} followers</span>
-              </div>
-            </div>
-          </div>
-          <div className="video-player-placeholder">
-            <p className="text-muted-foreground">
-              Video player sẽ được hiển thị ở đây...
-            </p>
-          </div>
+          <LuvRoomTheaterSection streamer={streamer} />
+          <ReplayVideoSection streamer={streamer} />
         </div>
       </div>
-      
+
       <div className="luv-room_main_sider">
         <div className="sidebar-content">
           <h2 className="sidebar-title">Live Chat</h2>
-          <div className="chat-container">
-            <p className="text-muted-foreground">
-              Chat box sẽ được hiển thị ở đây...
-            </p>
-          </div>
+          <LiveChat />
         </div>
       </div>
     </div>
