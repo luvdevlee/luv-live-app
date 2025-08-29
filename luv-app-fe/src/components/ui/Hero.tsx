@@ -26,8 +26,8 @@ export default function Hero() {
             
             {/* Video Player Area */}
             <div className="video-player">
-              <div className="video-overlay">
-                <div className="play-button">
+              <div className="video-overlay-home">
+                <div className="play-button-home">
                   <svg width="80" height="80" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M8 5v14l11-7z"/>
                   </svg>
