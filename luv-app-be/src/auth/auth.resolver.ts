@@ -5,6 +5,7 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginInput } from './dto/login.input';
@@ -38,11 +39,15 @@ export class AuthResolver {
 
   @Public()
   @Mutation(() => AuthResponse, {
+    name: 'register',
     description: 'Register a new account',
   })
   async register(
     @Args('registerUserDto') registerUserDto: RegisterUserDto,
   ): Promise<AuthResponse> {
+    if (!registerUserDto) {
+      throw new BadRequestException('Register user data is required');
+    }
     return this.authService.register(registerUserDto);
   }
 

@@ -38,16 +38,13 @@ export class AuthService {
 
   async register(registerUserDto: RegisterUserDto): Promise<AuthResponse> {
     try {
-      this.logger.log(`Registering new user: ${registerUserDto.email}`);
-
-      const user = await this.userService.register(registerUserDto);
+      await this.userService.register(registerUserDto);
+      const user = await this.userService.findByUsername(
+        registerUserDto.username,
+      );
       const tokens = await this.generateTokens(user);
 
       await this.userService.updateLastLogin(user._id);
-
-      this.logger.log(
-        `User registered and logged in successfully: ${user._id}`,
-      );
 
       return {
         ...tokens,
@@ -137,8 +134,6 @@ export class AuthService {
       }
 
       const accessToken = await this.generateAccessToken(user);
-
-      this.logger.log(`Token refreshed successfully for user: ${user._id}`);
 
       return {
         access_token: accessToken,

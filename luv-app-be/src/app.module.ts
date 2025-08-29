@@ -12,9 +12,12 @@ import databaseConfig from './common/config/database.config';
 import jwtConfig from './common/config/jwt.config';
 
 import { DatabaseModule } from './database/mongodb.module';
+import { CommonModule } from '@src/common/common.module';
+import { JwtCommonModule } from '@src/common/modules/jwt-common.module';
 import { AuthModule } from '@src/auth/auth.module';
 import { UserModule } from '@src/user/user.module';
-import { StreamModule } from '@src/stream/stream.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -23,9 +26,10 @@ import { StreamModule } from '@src/stream/stream.module';
       load: [appConfig, jwtConfig, databaseConfig],
     }),
     DatabaseModule,
+    CommonModule,
+    JwtCommonModule,
     AuthModule,
     UserModule,
-    StreamModule,
 
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
@@ -35,16 +39,17 @@ import { StreamModule } from '@src/stream/stream.module';
       context: ({ req, res }) => ({ req, res }),
       formatError: (error) => ({
         message: error.message,
-        code: error.extensions?.code,
-        status: error.extensions?.status,
-        timestamp: error.extensions?.timestamp,
+        code: error.extensions?.code || 'UNKNOWN_ERROR',
+        status: error.extensions?.status || 500,
+        timestamp: new Date().toISOString(),
         path: error.path,
         locations: error.locations,
       }),
     }),
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [
+    AppService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

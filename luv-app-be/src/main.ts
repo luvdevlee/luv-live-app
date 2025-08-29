@@ -3,7 +3,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from '@src/app.module';
 import helmet from 'helmet';
 import compression from 'compression';
-import session from 'express-session';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {

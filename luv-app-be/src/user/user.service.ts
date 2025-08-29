@@ -4,28 +4,29 @@ import {
   ConflictException,
   BadRequestException,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import bcrypt from 'bcrypt';
 
 import { User, UserDocument, UserRole } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserResponse } from './dto/user.response';
+import { BcryptService } from '@src/auth/bcrypt.service';
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
-  private readonly saltRounds = 12; // Increased for better security
 
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private readonly bcryptService: BcryptService,
+  ) {}
 
-  async register(registerUserDto: RegisterUserDto): Promise<User> {
+  async register(registerUserDto: RegisterUserDto): Promise<UserResponse> {
     try {
-      this.logger.log(`Registering new user: ${registerUserDto.username}`);
-
-      // Check if username or email already exists
       const existingUser = await this.userModel.findOne({
         $or: [
           { username: registerUserDto.username },
@@ -34,61 +35,46 @@ export class UserService {
       });
 
       if (existingUser) {
-        this.logger.warn(
-          `Registration failed: Username or email already exists for ${registerUserDto.username}`,
-        );
-        throw new ConflictException('Username or email already exists');
-      }
-
-      let password_hash: string;
-      try {
-        password_hash = await this.hashPassword(registerUserDto.password);
-      } catch (hashError) {
-        this.logger.error(`Password hashing failed: ${hashError.message}`);
-        throw new BadRequestException('Failed to process password');
+        throw new ConflictException('Username or Email does existing!');
       }
 
       const userData = {
         username: registerUserDto.username,
         email: registerUserDto.email,
-        password_hash,
+        password_hash: await this.bcryptService.hash(registerUserDto.password),
         display_name: registerUserDto.display_name || registerUserDto.username,
         avatar_url: registerUserDto.avatar_url,
         role: UserRole.VIEWER,
         is_active: true,
       };
 
-      // Create and save user
-      try {
-        const createdUser = new this.userModel(userData);
-        const savedUser = await createdUser.save();
+      const createdUser = new this.userModel(userData);
+      const savedUser = await createdUser.save();
 
-        this.logger.log(`User registered successfully: ${savedUser._id}`);
-        return savedUser;
-      } catch (saveError) {
-        this.logger.error(`User save failed: ${saveError.message}`);
-        throw new BadRequestException('Failed to save user');
-      }
+      return {
+        _id: savedUser._id.toString(),
+        username: savedUser.username,
+        email: savedUser.email,
+        google_id: savedUser.google_id,
+        avatar_url: savedUser.avatar_url,
+        display_name: savedUser.display_name,
+        role: savedUser.role,
+        is_active: savedUser.is_active,
+        last_login_at: savedUser.last_login_at,
+        created_at: savedUser.created_at,
+        updated_at: savedUser.updated_at,
+      };
     } catch (error) {
-      if (
-        error instanceof ConflictException ||
-        error instanceof BadRequestException
-      ) {
-        throw error; // Re-throw HTTP exceptions
+      if (error instanceof ConflictException) {
+        throw error;
       }
 
-      this.logger.error(
-        `Unexpected error in registration: ${error.message}`,
-        error.stack,
-      );
-      throw new BadRequestException('Registration failed');
+      this.logger.error(`Register failed: ${error.message}`, error.stack);
+      throw new BadRequestException('Failed to register!');
     }
   }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    this.logger.log(`Creating new user: ${createUserDto.username}`);
-
-    // Check if username or email already exists
     const existingUser = await this.userModel.findOne({
       $or: [
         { username: createUserDto.username },
@@ -97,33 +83,38 @@ export class UserService {
     });
 
     if (existingUser) {
-      this.logger.warn(
-        `User creation failed: Username or email already exists for ${createUserDto.username}`,
-      );
       throw new ConflictException('Username or email already exists');
     }
 
-    let password_hash: string | undefined = undefined;
-    if (createUserDto.password) {
-      password_hash = await this.hashPassword(createUserDto.password);
-    }
-
-    const userData = {
-      ...createUserDto,
-      password_hash,
+    const userData: any = {
+      username: createUserDto.username,
+      email: createUserDto.email,
       display_name: createUserDto.display_name || createUserDto.username,
+      avatar_url: createUserDto.avatar_url,
       role: createUserDto.role || UserRole.VIEWER,
       is_active:
         createUserDto.is_active !== undefined ? createUserDto.is_active : true,
     };
 
+    if (createUserDto.google_id) {
+      userData.google_id = createUserDto.google_id;
+    }
+
+    if (createUserDto.password) {
+      userData.password_hash = await this.bcryptService.hash(
+        createUserDto.password,
+      );
+    }
+
     try {
       const createdUser = new this.userModel(userData);
       const savedUser = await createdUser.save();
-      this.logger.log(`User created successfully: ${savedUser._id}`);
       return savedUser;
     } catch (error) {
-      this.logger.error(`Failed to create user: ${error.message}`, error.stack);
+      this.logger.error(
+        `Admin created user failed: ${error.message}`,
+        error.stack,
+      );
       throw new BadRequestException('Failed to create user');
     }
   }
@@ -175,7 +166,14 @@ export class UserService {
       return null;
     }
 
-    return this.userModel.findOne({ email, is_active: true }).exec();
+    const user = await this.userModel
+      .findOne({ email, is_active: true })
+      .exec();
+    if (!user) {
+      return null;
+    }
+
+    return user;
   }
 
   async findByEmailWithPassword(email: string): Promise<User | null> {
@@ -245,8 +243,6 @@ export class UserService {
     if (!updatedUser) {
       throw new NotFoundException('User not found');
     }
-
-    this.logger.log(`Google account linked successfully for user: ${userId}`);
     return updatedUser;
   }
 
@@ -326,7 +322,7 @@ export class UserService {
     }
 
     try {
-      return await bcrypt.compare(password, user.password_hash);
+      return await this.bcryptService.compare(password, user.password_hash);
     } catch (error) {
       this.logger.error(`Password validation error: ${error.message}`);
       return false;
@@ -334,52 +330,22 @@ export class UserService {
   }
 
   async changePassword(
-    userId: string,
+    id: string,
     oldPassword: string,
     newPassword: string,
   ): Promise<void> {
-    if (!userId) {
-      throw new BadRequestException('Invalid user ID format');
-    }
-
-    const user = await this.userModel.findById(userId).exec();
+    const user = await this.userModel.findById(id).exec();
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    if (!user.password_hash) {
-      throw new BadRequestException('Cannot change password for Google users');
+    const isPasswordValid = await this.validatePassword(user, oldPassword);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid password');
     }
 
-    const isOldPasswordValid = await this.validatePassword(user, oldPassword);
-    if (!isOldPasswordValid) {
-      throw new BadRequestException('Current password is incorrect');
-    }
-
-    const newPasswordHash = await this.hashPassword(newPassword);
-    await this.userModel
-      .findByIdAndUpdate(userId, { password_hash: newPasswordHash })
-      .exec();
-
-    this.logger.log(`Password changed successfully for user: ${userId}`);
-  }
-
-  private async hashPassword(password: string): Promise<string> {
-    if (!password || typeof password !== 'string') {
-      throw new BadRequestException('Invalid password format');
-    }
-
-    try {
-      const salt = await bcrypt.genSalt(this.saltRounds);
-      const hash = await bcrypt.hash(password, salt);
-      return hash;
-    } catch (error) {
-      this.logger.error(
-        `Password hashing error: ${error.message}`,
-        error.stack,
-      );
-      throw new BadRequestException('Failed to process password');
-    }
+    user.password_hash = await this.bcryptService.hash(newPassword);
+    await user.save();
   }
 
   async getUserStats(): Promise<{
