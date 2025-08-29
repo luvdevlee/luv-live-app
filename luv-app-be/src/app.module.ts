@@ -1,72 +1,59 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { join } from 'path';
+import { APP_GUARD } from '@nestjs/core';
 
-import { environmentVariablesConfig } from '@src/config/app.config';
+import { JwtAuthGuard } from '@src/auth/guards/jwt-auth.guard';
+
+import appConfig from './common/config/app.config';
+import databaseConfig from './common/config/database.config';
+import jwtConfig from './common/config/jwt.config';
+
+import { DatabaseModule } from './database/mongodb.module';
+import { CommonModule } from '@src/common/common.module';
+import { JwtCommonModule } from '@src/common/modules/jwt-common.module';
 import { AuthModule } from '@src/auth/auth.module';
-import { StreamModule } from '@src/stream/stream.module';
-import { StreamerModule } from '@src/streamer/streamer.module';
 import { UserModule } from '@src/user/user.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: `.env.${process.env.NODE_ENV}`,
+      load: [appConfig, jwtConfig, databaseConfig],
     }),
-
-    MongooseModule.forRoot(environmentVariablesConfig.mongodbUri!),
+    DatabaseModule,
+    CommonModule,
+    JwtCommonModule,
+    AuthModule,
+    UserModule,
 
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
+      graphiql: true,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
-
-      playground: false,
-      introspection: environmentVariablesConfig.nodeEnv !== 'production',
-
-      plugins: [
-        ...(environmentVariablesConfig.nodeEnv !== 'production'
-          ? [
-              ApolloServerPluginLandingPageLocalDefault({
-                embed: true,
-                includeCookies: true,
-              }),
-            ]
-          : []),
-      ],
-
-      context: ({ req, res }: { req: Request; res: Response }) => ({
-        req,
-        res,
+      context: ({ req, res }) => ({ req, res }),
+      formatError: (error) => ({
+        message: error.message,
+        code: error.extensions?.code || 'UNKNOWN_ERROR',
+        status: error.extensions?.status || 500,
+        timestamp: new Date().toISOString(),
+        path: error.path,
+        locations: error.locations,
       }),
-      formatError: (error) => {
-        return {
-          message: error.message,
-          code: error.extensions?.code,
-          path: error.path,
-          ...(environmentVariablesConfig.nodeEnv === 'development' && {
-            locations: error.locations,
-            stack: error,
-          }),
-        };
-      },
-
-      // Security Configuration
-      csrfPrevention: false, // Disable for development
-      cache: 'bounded',
     }),
-
-    AuthModule,
-    UserModule,
-    StreamerModule,
-    StreamModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [AppController],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

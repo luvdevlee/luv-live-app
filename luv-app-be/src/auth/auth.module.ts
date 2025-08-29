@@ -1,45 +1,24 @@
-import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { Module, forwardRef } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
-import { ThrottlerModule } from '@nestjs/throttler';
-import { AuthService } from '@src/auth/auth.service';
-import { AuthResolver } from '@src/auth/auth.resolver';
-import { AuthController } from '@src/auth/auth.controller';
+import { AuthService } from './auth.service';
+import { AuthResolver } from './auth.resolver';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { GqlAuthGuard } from './guards/gql-auth.guard';
 import { UserModule } from '@src/user/user.module';
-import { JwtStrategy } from '@src/auth/strategies/jwt.strategy';
-import { GoogleStrategy } from '@src/auth/strategies/google.strategy';
-import { environmentVariablesConfig } from '@src/config/app.config';
 
 @Module({
   imports: [
-    UserModule,
-    PassportModule.register({
-      defaultStrategy: 'jwt',
-      session: false, // Disable session for stateless JWT approach
-    }),
-    JwtModule.register({
-      secret: environmentVariablesConfig.jwtSecret,
-      signOptions: {
-        expiresIn: environmentVariablesConfig.jwtExpiresIn,
-        algorithm: 'HS256',
-        issuer: 'luv-app-auth',
-        audience: 'luv-app-api',
-      },
-      verifyOptions: {
-        algorithms: ['HS256'],
-        issuer: 'luv-app-auth',
-        audience: 'luv-app-api',
-      },
-    }),
-    ThrottlerModule.forRoot([
-      {
-        ttl: environmentVariablesConfig.throttleTtl * 1000, // Convert to milliseconds
-        limit: environmentVariablesConfig.throttleLimit,
-      },
-    ]),
+    forwardRef(() => UserModule),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
-  controllers: [AuthController],
-  providers: [AuthService, AuthResolver, JwtStrategy, GoogleStrategy],
-  exports: [AuthService, JwtModule],
+  providers: [
+    AuthService,
+    AuthResolver,
+    JwtStrategy,
+    JwtAuthGuard,
+    GqlAuthGuard,
+  ],
+  exports: [AuthService, JwtAuthGuard, GqlAuthGuard],
 })
 export class AuthModule {}

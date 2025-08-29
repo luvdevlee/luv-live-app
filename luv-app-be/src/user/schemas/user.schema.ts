@@ -29,18 +29,18 @@ export class User {
 
   @Field({ nullable: true })
   @Prop({ unique: true, sparse: true })
-  googleId?: string;
+  google_id?: string;
 
   @Prop({ required: false })
-  password?: string; // Not exposed in GraphQL, make optional for Google users
+  password_hash?: string; // Not exposed in GraphQL, make optional for Google users
 
   @Field({ nullable: true })
   @Prop()
-  avatar?: string;
+  avatar_url?: string;
 
   @Field({ nullable: true })
   @Prop({ default: 'viewer' })
-  displayName?: string;
+  display_name?: string;
 
   @Field(() => UserRole)
   @Prop({ enum: UserRole, default: UserRole.VIEWER })
@@ -48,18 +48,32 @@ export class User {
 
   @Field()
   @Prop({ default: true })
-  isActive: boolean;
+  is_active: boolean;
 
   @Field({ nullable: true })
   @Prop()
-  lastLoginAt?: Date;
+  last_login_at?: Date;
 
   @Field()
-  createdAt: Date;
+  created_at: Date;
 
   @Field()
-  updatedAt: Date;
+  updated_at: Date;
 }
 
 export type UserDocument = User & Document;
 export const UserSchema = SchemaFactory.createForClass(User);
+
+// Create indexes for better performance
+UserSchema.index({ email: 1 }, { unique: true, sparse: true });
+UserSchema.index({ username: 1 }, { unique: true });
+UserSchema.index({ google_id: 1 }, { unique: true, sparse: true });
+UserSchema.index({ role: 1 });
+UserSchema.index({ is_active: 1 });
+UserSchema.index({ created_at: -1 });
+UserSchema.index({ last_login_at: -1 });
+
+// Compound indexes for common queries
+UserSchema.index({ email: 1, is_active: 1 });
+UserSchema.index({ username: 1, is_active: 1 });
+UserSchema.index({ role: 1, is_active: 1 });

@@ -2,17 +2,14 @@ import {
   IsEmail,
   IsString,
   MinLength,
-  IsOptional,
-  IsEnum,
-  IsBoolean,
   Matches,
   IsStrongPassword,
+  IsOptional,
 } from 'class-validator';
 import { InputType, Field } from '@nestjs/graphql';
-import { UserRole } from '../schemas/user.schema';
 
 @InputType()
-export class CreateUserDto {
+export class RegisterUserDto {
   @Field()
   @IsString()
   @MinLength(3, { message: 'Username must be at least 3 characters long' })
@@ -25,13 +22,7 @@ export class CreateUserDto {
   @IsEmail({}, { message: 'Please provide a valid email address' })
   email: string;
 
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  google_id?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
+  @Field()
   @IsStrongPassword(
     {
       minLength: 8,
@@ -50,20 +41,10 @@ export class CreateUserDto {
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
-  avatar_url?: string;
+  display_name?: string;
 
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
-  display_name?: string;
-
-  @Field(() => UserRole, { nullable: true })
-  @IsOptional()
-  @IsEnum(UserRole, { message: 'Role must be a valid user role' })
-  role?: UserRole;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsBoolean()
-  is_active?: boolean;
+  avatar_url?: string;
 }
