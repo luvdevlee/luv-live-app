@@ -62,7 +62,7 @@ export class UserService {
       try {
         const createdUser = new this.userModel(userData);
         const savedUser = await createdUser.save();
-        
+
         this.logger.log(`User registered successfully: ${savedUser._id}`);
         return savedUser;
       } catch (saveError) {
@@ -70,11 +70,17 @@ export class UserService {
         throw new BadRequestException('Failed to save user');
       }
     } catch (error) {
-      if (error instanceof ConflictException || error instanceof BadRequestException) {
+      if (
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
         throw error; // Re-throw HTTP exceptions
       }
-      
-      this.logger.error(`Unexpected error in registration: ${error.message}`, error.stack);
+
+      this.logger.error(
+        `Unexpected error in registration: ${error.message}`,
+        error.stack,
+      );
       throw new BadRequestException('Registration failed');
     }
   }
@@ -84,7 +90,10 @@ export class UserService {
 
     // Check if username or email already exists
     const existingUser = await this.userModel.findOne({
-      $or: [{ username: createUserDto.username }, { email: createUserDto.email }],
+      $or: [
+        { username: createUserDto.username },
+        { email: createUserDto.email },
+      ],
     });
 
     if (existingUser) {
@@ -114,10 +123,7 @@ export class UserService {
       this.logger.log(`User created successfully: ${savedUser._id}`);
       return savedUser;
     } catch (error) {
-      this.logger.error(
-        `Failed to create user: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`Failed to create user: ${error.message}`, error.stack);
       throw new BadRequestException('Failed to create user');
     }
   }
@@ -169,9 +175,7 @@ export class UserService {
       return null;
     }
 
-    return this.userModel
-      .findOne({ email, is_active: true })
-      .exec();
+    return this.userModel.findOne({ email, is_active: true }).exec();
   }
 
   async findByEmailWithPassword(email: string): Promise<User | null> {
@@ -180,28 +184,6 @@ export class UserService {
     }
 
     return this.userModel.findOne({ email, is_active: true }).exec();
-  }
-
-  async findByUsernameOptional(username: string): Promise<User | null> {
-    if (!username) {
-      return null;
-    }
-
-    return this.userModel
-      .findOne({ username, is_active: true })
-      .select('-password_hash')
-      .exec();
-  }
-
-  async findByGoogleId(googleId: string): Promise<User | null> {
-    if (!googleId) {
-      return null;
-    }
-
-    return this.userModel
-      .findOne({ google_id: googleId, is_active: true })
-      .select('-password_hash')
-      .exec();
   }
 
   async createGoogleUser(createUserDto: CreateUserDto): Promise<User> {
@@ -386,46 +368,18 @@ export class UserService {
     if (!password || typeof password !== 'string') {
       throw new BadRequestException('Invalid password format');
     }
-    
+
     try {
       const salt = await bcrypt.genSalt(this.saltRounds);
       const hash = await bcrypt.hash(password, salt);
       return hash;
     } catch (error) {
-      this.logger.error(`Password hashing error: ${error.message}`, error.stack);
+      this.logger.error(
+        `Password hashing error: ${error.message}`,
+        error.stack,
+      );
       throw new BadRequestException('Failed to process password');
     }
-  }
-
-  // Admin methods
-  async promoteToStreamer(userId: string): Promise<User> {
-    return this.updateUserRole(userId, UserRole.STREAMER);
-  }
-
-  async promoteToAdmin(userId: string): Promise<User> {
-    return this.updateUserRole(userId, UserRole.ADMIN);
-  }
-
-  async demoteToViewer(userId: string): Promise<User> {
-    return this.updateUserRole(userId, UserRole.VIEWER);
-  }
-
-  private async updateUserRole(userId: string, role: UserRole): Promise<User> {
-    if (!userId) {
-      throw new BadRequestException('Invalid user ID format');
-    }
-
-    const updatedUser = await this.userModel
-      .findByIdAndUpdate(userId, { role }, { new: true })
-      .select('-password_hash')
-      .exec();
-
-    if (!updatedUser) {
-      throw new NotFoundException('User not found');
-    }
-
-    this.logger.log(`User role updated to ${role} for user: ${userId}`);
-    return updatedUser;
   }
 
   async getUserStats(): Promise<{

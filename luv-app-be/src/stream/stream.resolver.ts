@@ -13,9 +13,7 @@ import { StreamResponse } from './dto/stream.response';
 
 @Resolver(() => StreamResponse)
 export class StreamResolver {
-  constructor(
-    private readonly streamService: StreamService,
-  ) {}
+  constructor(private readonly streamService: StreamService) {}
 
   @Mutation(() => StreamResponse)
   createStream(

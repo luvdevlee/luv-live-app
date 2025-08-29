@@ -4,11 +4,26 @@ import { User } from '@src/user/schemas/user.schema';
 @ObjectType()
 export class AuthResponse {
   @Field()
-  accessToken: string;
+  access_token: string;
 
   @Field()
-  refreshToken: string;
+  refresh_token: string;
 
   @Field(() => User)
   user: User;
+}
+
+@ObjectType()
+export class LogoutResponse {
+  @Field()
+  message: string;
+
+  @Field()
+  success: boolean;
+}
+
+@ObjectType()
+export class RefreshTokenResponse {
+  @Field()
+  access_token: string;
 }

@@ -3,8 +3,8 @@
 # ------------------------------------------------------
 
 type AuthResponse {
-  accessToken: String!
-  refreshToken: String!
+  access_token: String!
+  refresh_token: String!
   user: User!
 }
 
@@ -37,6 +37,11 @@ input LoginInput {
   password: String!
 }
 
+type LogoutResponse {
+  message: String!
+  success: Boolean!
+}
+
 type Mutation {
   """Change user password"""
   changePassword(newPassword: String!, oldPassword: String!): Boolean!
@@ -44,20 +49,19 @@ type Mutation {
 
   """Create a new user (admin only)"""
   createUser(createUserDto: CreateUserDto!): UserResponse!
-
-  """Demote user to viewer (admin only)"""
-  demoteToViewer(userId: String!): UserResponse!
   endStream(id: String!): StreamResponse!
+
+  """Login with email and password"""
   login(loginInput: LoginInput!): AuthResponse!
-  logout: Boolean!
 
-  """Promote user to admin (admin only)"""
-  promoteToAdmin(userId: String!): UserResponse!
+  """Logout from the system"""
+  logout: LogoutResponse!
 
-  """Promote user to streamer (admin only)"""
-  promoteToStreamer(userId: String!): UserResponse!
-  refreshTokens(refreshToken: String!): AuthResponse!
-  register(createUserDto: CreateUserDto!): AuthResponse!
+  """Refresh access token"""
+  refreshToken(refreshTokenInput: RefreshTokenInput!): RefreshTokenResponse!
+
+  """Register a new account"""
+  register(registerUserDto: RegisterUserDto!): AuthResponse!
 
   """Register a new user account"""
   registerUser(registerUserDto: RegisterUserDto!): UserResponse!
@@ -67,9 +71,6 @@ type Mutation {
   removeUser(id: String!): UserResponse!
   setPlaybackUrl(id: String!, playbackUrl: String!): StreamResponse!
   startStream(id: String!): StreamResponse!
-
-  """Update current user profile"""
-  updateMyProfile(updateUserDto: UpdateUserDto!): UserResponse!
   updateStream(id: String!, updateStreamDto: UpdateStreamDto!): StreamResponse!
 
   """Update user profile"""
@@ -96,8 +97,16 @@ type Query {
   """Get user statistics (admin only)"""
   userStats: UserStatsResponse!
 
-  """Get all active users"""
+  """Get all active users (admin only)"""
   users: [UserResponse!]!
+}
+
+input RefreshTokenInput {
+  refresh_token: String!
+}
+
+type RefreshTokenResponse {
+  access_token: String!
 }
 
 input RegisterUserDto {

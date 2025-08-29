@@ -1,45 +1,37 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { ThrottlerModule } from '@nestjs/throttler';
-import { AuthService } from '@src/auth/auth.service';
-import { AuthResolver } from '@src/auth/auth.resolver';
-import { AuthController } from '@src/auth/auth.controller';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthService } from './auth.service';
 import { UserModule } from '@src/user/user.module';
-import { JwtStrategy } from '@src/auth/strategies/jwt.strategy';
-import { GoogleStrategy } from '@src/auth/strategies/google.strategy';
-import { environmentVariablesConfig } from '@src/config/app.config';
+import { AuthResolver } from './auth.resolver';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { GqlAuthGuard } from './guards/gql-auth.guard';
 
 @Module({
   imports: [
-    UserModule,
-    PassportModule.register({
-      defaultStrategy: 'jwt',
-      session: false, // Disable session for stateless JWT approach
+    // Sử dụng forwardRef cho UserModule
+    forwardRef(() => UserModule),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('jwt.secret'),
+        signOptions: {
+          expiresIn: configService.get<string>('jwt.accessTokenTtl'),
+        },
+      }),
+      inject: [ConfigService],
     }),
-    JwtModule.register({
-      secret: environmentVariablesConfig.jwtSecret,
-      signOptions: {
-        expiresIn: environmentVariablesConfig.jwtExpiresIn,
-        algorithm: 'HS256',
-        issuer: 'luv-app-auth',
-        audience: 'luv-app-api',
-      },
-      verifyOptions: {
-        algorithms: ['HS256'],
-        issuer: 'luv-app-auth',
-        audience: 'luv-app-api',
-      },
-    }),
-    ThrottlerModule.forRoot([
-      {
-        ttl: environmentVariablesConfig.throttleTtl * 1000, // Convert to milliseconds
-        limit: environmentVariablesConfig.throttleLimit,
-      },
-    ]),
   ],
-  controllers: [AuthController],
-  providers: [AuthService, AuthResolver, JwtStrategy, GoogleStrategy],
-  exports: [AuthService, JwtModule],
+  providers: [
+    AuthService,
+    AuthResolver,
+    JwtStrategy,
+    JwtAuthGuard,
+    GqlAuthGuard,
+  ],
+  exports: [AuthService, JwtModule, JwtAuthGuard, GqlAuthGuard],
 })
 export class AuthModule {}

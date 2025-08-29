@@ -1,29 +1,35 @@
-import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
-import { UsePipes, ValidationPipe, UseGuards } from '@nestjs/common';
+import { Resolver, Mutation, Args, Context } from '@nestjs/graphql';
+import {
+  UsePipes,
+  ValidationPipe,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthResponse } from './dto/auth.response';
 import { LoginInput } from './dto/login.input';
-import { CreateUserDto } from '../user/dto/create-user.dto';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { CurrentUser } from './decorators/current-user.decorator';
-import { Public } from './decorators/public.decorator';
-import { User } from '../user/schemas/user.schema';
+import {
+  AuthResponse,
+  LogoutResponse,
+  RefreshTokenResponse,
+} from './dto/auth.response';
+import { RegisterUserDto } from '@src/user/dto/register-user.dto';
+import { RefreshTokenInput } from './dto/refresh-token.input';
+import { Public } from '../common/decorators/public.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { GqlAuthGuard } from './guards/gql-auth.guard';
+import { User } from '@src/user/schemas/user.schema';
 
 @Resolver()
-@UsePipes(new ValidationPipe({ transform: true }))
+@UseInterceptors(ClassSerializerInterceptor)
+@UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
-  @Mutation(() => AuthResponse)
-  async register(
-    @Args('createUserDto') createUserDto: CreateUserDto,
-  ): Promise<AuthResponse> {
-    return this.authService.register(createUserDto);
-  }
-
-  @Public()
-  @Mutation(() => AuthResponse)
+  @Mutation(() => AuthResponse, {
+    description: 'Login with email and password',
+  })
   async login(
     @Args('loginInput') loginInput: LoginInput,
   ): Promise<AuthResponse> {
@@ -31,22 +37,44 @@ export class AuthResolver {
   }
 
   @Public()
-  @Mutation(() => AuthResponse)
-  async refreshTokens(
-    @Args('refreshToken') refreshToken: string,
+  @Mutation(() => AuthResponse, {
+    description: 'Register a new account',
+  })
+  async register(
+    @Args('registerUserDto') registerUserDto: RegisterUserDto,
   ): Promise<AuthResponse> {
-    return this.authService.refreshTokens(refreshToken);
+    return this.authService.register(registerUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Mutation(() => Boolean)
-  async logout(@CurrentUser() user: User): Promise<boolean> {
-    return this.authService.logout(user._id);
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => LogoutResponse, {
+    description: 'Logout from the system',
+  })
+  async logout(
+    @CurrentUser() currentUser: User,
+    @Context() context: any,
+  ): Promise<LogoutResponse> {
+    // Extract token from Authorization header
+    const authHeader = context.req.headers.authorization;
+    const token =
+      authHeader && authHeader.startsWith('Bearer ')
+        ? authHeader.substring(7)
+        : null;
+
+    if (!token) {
+      throw new Error('Token not found');
+    }
+
+    return this.authService.logout(currentUser._id, token);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Query(() => User)
-  async me(@CurrentUser() user: User): Promise<User> {
-    return user;
+  @Public()
+  @Mutation(() => RefreshTokenResponse, {
+    description: 'Refresh access token',
+  })
+  async refreshToken(
+    @Args('refreshTokenInput') refreshTokenInput: RefreshTokenInput,
+  ): Promise<RefreshTokenResponse> {
+    return this.authService.refreshToken(refreshTokenInput);
   }
 }

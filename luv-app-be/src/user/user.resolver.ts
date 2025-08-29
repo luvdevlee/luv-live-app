@@ -1,32 +1,22 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
-import {
-  UsePipes,
-  ValidationPipe,
-  ParseUUIDPipe,
-  UseInterceptors,
-  ClassSerializerInterceptor,
-  UseGuards,
-} from '@nestjs/common';
-import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { UseGuards, UnauthorizedException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User, UserRole } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponse } from './dto/user.response';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { Public } from '../auth/decorators/public.decorator';
+import { CurrentUser } from '@src/common/decorators/current-user.decorator';
+import { Public } from '@src/common/decorators/public.decorator';
+import { JwtAuthGuard } from '@src/auth/guards/jwt-auth.guard';
+import { GqlAuthGuard } from '@src/auth/guards/gql-auth.guard';
+import { UserStatsResponse } from './dto/user-stats.response';
 
 @Resolver(() => User)
-@UseInterceptors(ClassSerializerInterceptor)
-@UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
   @Public()
-  // @UseGuards(ThrottlerGuard)
-  // @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 registrations per minute
   @Mutation(() => UserResponse, {
     description: 'Register a new user account',
   })
@@ -36,18 +26,21 @@ export class UserResolver {
     return this.userService.register(registerUserDto);
   }
 
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => UserResponse, {
     description: 'Create a new user (admin only)',
   })
   async createUser(
     @Args('createUserDto') createUserDto: CreateUserDto,
+    @CurrentUser() currentUser: User,
   ): Promise<UserResponse> {
     return this.userService.create(createUserDto);
   }
 
+  // @UseGuards(GqlAuthGuard)
   @Query(() => [UserResponse], {
     name: 'users',
-    description: 'Get all active users',
+    description: 'Get all active users (admin only)',
   })
   async findAll(): Promise<User[]> {
     const users = await this.userService.findAll();
@@ -62,7 +55,7 @@ export class UserResolver {
     name: 'user',
     description: 'Get user by ID',
   })
-  async findOne(
+  async findById(
     @Args('id', { type: () => String }) id: string,
     @CurrentUser() currentUser: User,
   ): Promise<UserResponse> {
@@ -92,10 +85,11 @@ export class UserResolver {
     name: 'me',
     description: 'Get current user profile',
   })
-  async getCurrentUser(
-    @CurrentUser() currentUser: User,
-  ): Promise<UserResponse> {
-    return this.userService.findOne(currentUser._id);
+  async getCurrentUser(@CurrentUser() currentUser: any): Promise<UserResponse> {
+    if (!currentUser.sub) {
+      throw new UnauthorizedException('You are not authenticated');
+    }
+    return this.userService.findOne(currentUser.sub);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -115,17 +109,6 @@ export class UserResolver {
       throw new Error('Insufficient permissions');
     }
     return this.userService.update(id, updateUserDto);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Mutation(() => UserResponse, {
-    description: 'Update current user profile',
-  })
-  async updateMyProfile(
-    @Args('updateUserDto') updateUserDto: UpdateUserDto,
-    @CurrentUser() currentUser: User,
-  ): Promise<UserResponse> {
-    return this.userService.update(currentUser._id, updateUserDto);
   }
 
   @Mutation(() => UserResponse, {
@@ -154,49 +137,6 @@ export class UserResolver {
     return true;
   }
 
-  // Admin mutations
-  @UseGuards(JwtAuthGuard)
-  @Mutation(() => UserResponse, {
-    description: 'Promote user to streamer (admin only)',
-  })
-  async promoteToStreamer(
-    @Args('userId', { type: () => String }) userId: string,
-    @CurrentUser() currentUser: User,
-  ): Promise<UserResponse> {
-    if (currentUser.role !== UserRole.ADMIN) {
-      throw new Error('Insufficient permissions');
-    }
-    return this.userService.promoteToStreamer(userId);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Mutation(() => UserResponse, {
-    description: 'Promote user to admin (admin only)',
-  })
-  async promoteToAdmin(
-    @Args('userId', { type: () => String }) userId: string,
-    @CurrentUser() currentUser: User,
-  ): Promise<UserResponse> {
-    if (currentUser.role !== UserRole.ADMIN) {
-      throw new Error('Insufficient permissions');
-    }
-    return this.userService.promoteToAdmin(userId);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Mutation(() => UserResponse, {
-    description: 'Demote user to viewer (admin only)',
-  })
-  async demoteToViewer(
-    @Args('userId', { type: () => String }) userId: string,
-    @CurrentUser() currentUser: User,
-  ): Promise<UserResponse> {
-    if (currentUser.role !== UserRole.ADMIN) {
-      throw new Error('Insufficient permissions');
-    }
-    return this.userService.demoteToViewer(userId);
-  }
-
   // Statistics query
   @UseGuards(JwtAuthGuard)
   @Query(() => UserStatsResponse, {
@@ -211,25 +151,4 @@ export class UserResolver {
     }
     return this.userService.getUserStats();
   }
-}
-
-// Additional response type for statistics
-import { ObjectType, Field, Int } from '@nestjs/graphql';
-
-@ObjectType()
-export class UserStatsResponse {
-  @Field(() => Int)
-  totalUsers: number;
-
-  @Field(() => Int)
-  activeUsers: number;
-
-  @Field(() => Int)
-  streamers: number;
-
-  @Field(() => Int)
-  viewers: number;
-
-  @Field(() => Int)
-  admins: number;
 }
