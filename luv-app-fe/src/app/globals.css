@@ -687,7 +687,7 @@ body {
   position: relative;
   width: 100%;
   height: 400px;
-  background-image: url('https://mixhotel.vn/uploads/images/62441d61d6a5eb1d06698102/cach-tao-dang-selfie__12_.webp');
+  background-image: url('https://i.pinimg.com/736x/9c/03/a8/9c03a8f9aa192411138d3a4496ec1f55.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -710,7 +710,7 @@ body {
   background: linear-gradient(135deg, rgba(26, 26, 46, 0.7), rgba(22, 33, 62, 0.5));
 }
 
-.video-overlay {
+.video-overlay-home {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -722,11 +722,11 @@ body {
   z-index: 2;
 }
 
-.video-player:hover .video-overlay {
+.video-player:hover .video-overlay-home {
   transform: scale(1.1);
 }
 
-.play-button {
+.play-button-home {
   background: rgba(233, 30, 99, 0.9);
   border-radius: 50%;
   width: 100px;
@@ -738,13 +738,13 @@ body {
   box-shadow: 0 8px 25px rgba(233, 30, 99, 0.4);
 }
 
-.play-button:hover {
+.play-button-home:hover {
   background: rgba(233, 30, 99, 1);
   transform: scale(1.1);
   box-shadow: 0 12px 35px rgba(233, 30, 99, 0.6);
 }
 
-.play-button svg {
+.play-button-home svg {
   margin-left: 4px;
   width: 60px;
   height: 60px;
@@ -883,12 +883,12 @@ body {
     height: 400px;
   }
   
-  .play-button {
+  .play-button-home {
     width: 100px;
     height: 100px;
   }
   
-  .play-button svg {
+  .play-button-home svg {
     width: 60px;
     height: 60px;
   }
@@ -931,12 +931,12 @@ body {
     justify-content: center;
   }
   
-  .play-button {
+  .play-button-home {
     width: 80px;
     height: 80px;
   }
   
-  .play-button svg {
+  .play-button-home svg {
     width: 48px;
     height: 48px;
   }
@@ -991,12 +991,12 @@ body {
     padding: 0.675rem 1rem;
   }
   
-  .play-button {
+  .play-button-home {
     width: 70px;
     height: 70px;
   }
   
-  .play-button svg {
+  .play-button-home svg {
     width: 40px;
     height: 40px;
   }
@@ -1238,12 +1238,12 @@ body {
     font-size: 1rem;
   }
   
-  .play-button {
+  .play-button-home {
     width: 120px;
     height: 120px;
   }
   
-  .play-button svg {
+  .play-button-home svg {
     width: 80px;
     height: 80px;
   }

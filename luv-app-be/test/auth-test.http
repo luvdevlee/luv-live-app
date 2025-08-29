@@ -1,0 +1,62 @@
+### Test Authentication GraphQL Endpoints
+
+### 1. Test Register User
+POST http://localhost:3000/graphql
+Content-Type: application/json
+
+{
+  "query": "mutation Register($registerUserDto: RegisterUserDto!) { register(registerUserDto: $registerUserDto) { access_token refresh_token user { _id username email role } } }",
+  "variables": {
+    "registerUserDto": {
+      "username": "testuser",
+      "email": "test@example.com",
+      "password": "password123",
+      "display_name": "Test User"
+    }
+  }
+}
+
+### 2. Test Login User
+POST http://localhost:3000/graphql
+Content-Type: application/json
+
+{
+  "query": "mutation Login($loginInput: LoginInput!) { login(loginInput: $loginInput) { access_token refresh_token user { _id username email role } } }",
+  "variables": {
+    "loginInput": {
+      "email": "test@example.com",
+      "password": "password123"
+    }
+  }
+}
+
+### 3. Test Refresh Token
+POST http://localhost:3000/graphql
+Content-Type: application/json
+
+{
+  "query": "mutation RefreshToken($refreshTokenInput: RefreshTokenInput!) { refreshToken(refreshTokenInput: $refreshTokenInput) { access_token } }",
+  "variables": {
+    "refreshTokenInput": {
+      "refresh_token": "YOUR_REFRESH_TOKEN_HERE"
+    }
+  }
+}
+
+### 4. Test Protected Query (Me)
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "query": "query Me { me { _id username email role } }"
+}
+
+### 5. Test Logout
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "query": "mutation Logout { logout { message success } }"
+}

@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface LiveshowCard {
   id: string;
   streamerName: string;
+  userName: string;
   title: string;
   profileImage: string;
   viewers: number;
@@ -15,6 +17,7 @@ const liveshowData: LiveshowCard[] = [
   {
     id: "1",
     streamerName: "Nathan Nguyen",
+    userName: "nathan-nguyen",
     title: "Coi tarrot",
     profileImage: "https://scontent.fsgn8-3.fna.fbcdn.net/v/t39.30808-6/481080307_1692240728382080_3749027935326059149_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=111&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=20ezD5jCZg8Q7kNvwF55YKW&_nc_oc=AdliJ_cxzJvkB2wzwg6D_JmhHnYzLYBMLkJ3i7Wlt48pY1DXBy3NeV5bKKZxJTRwB3r9oinANpZlTh8FcXzzE9Xu&_nc_zt=23&_nc_ht=scontent.fsgn8-3.fna&_nc_gid=q0XMPCEd_dAn_uT4Mm0zcg&oh=00_AfU4zSCgiIpOg4nx758t1JGCfwgkmcwFdHIUz7gktigp_A&oe=68B245A0",
     viewers: 1247,
@@ -23,6 +26,7 @@ const liveshowData: LiveshowCard[] = [
   {
     id: "2", 
     streamerName: "Linh Thỏ",
+    userName: "linh-tho",
     title: "Mưa bùn quóo",
     profileImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkwMYthqutaftuxz8RK9vaEJyrSPvvNDJvwA&s",
     viewers: 892,
@@ -31,6 +35,7 @@ const liveshowData: LiveshowCard[] = [
   {
     id: "3",
     streamerName: "StreamQueen",
+    userName: "stream-queen",
     title: "Tâm sự tủi pink",
     profileImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSe7WFuqadM31NIdbwsGUPsWgRc8gbmzHo-IQ&s",
     viewers: 634,
@@ -39,6 +44,7 @@ const liveshowData: LiveshowCard[] = [
   {
     id: "4",
     streamerName: "Công chúa",
+    userName: "cong-chua",
     title: "Cảnh báo động!!",
     profileImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyI20h0NZPVnW0-9rdzBhDfMjDlohvZFDP4Q&s",
     viewers: 445,
@@ -47,6 +53,7 @@ const liveshowData: LiveshowCard[] = [
   {
     id: "5",
     streamerName: "NaNa",
+    userName: "nana",
     title: "Em bé ne",
     profileImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPEMaTW7A559ftA5lkv9j-iFoee6f5-SsClw&s",
     viewers: 328,
@@ -55,6 +62,7 @@ const liveshowData: LiveshowCard[] = [
   {
     id: "6",
     streamerName: "Sếp Linh",
+    userName: "sep-linh",
     title: "ỦA EMMM!!",
     profileImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6AaDGvGUd_jz2-hV32OLGJNmPAJ6HNejzqw&s",
     viewers: 267,
@@ -63,6 +71,7 @@ const liveshowData: LiveshowCard[] = [
   {
     id: "7",
     streamerName: "Lina Youne",
+    userName: "lina-youne",
     title: "Có zô hong thì bảo",
     profileImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRU4mgtZXEqveFGpBVDal_zA71hV8oMjZdtHw&s",
     viewers: 189,
@@ -71,6 +80,7 @@ const liveshowData: LiveshowCard[] = [
   {
     id: "8",
     streamerName: "Minaa",
+    userName: "minaa",
     title: "Chúa hề nèee",
     profileImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7h9BQ-ir6YffxX7onxNsMi47Krd6y-Xae7A&s",
     viewers: 156,
@@ -79,6 +89,7 @@ const liveshowData: LiveshowCard[] = [
   {
     id: "9",
     streamerName: "Bella Rose",
+    userName: "bella-rose",
     title: "Chill cùng em",
     profileImage: "https://picsum.photos/400/300?random=20",
     viewers: 145,
@@ -87,6 +98,7 @@ const liveshowData: LiveshowCard[] = [
   {
     id: "10",
     streamerName: "Candy Sweet",
+    userName: "candy-sweet",
     title: "Karaoke night",
     profileImage: "https://picsum.photos/400/300?random=21",
     viewers: 134,
@@ -102,6 +114,12 @@ function formatViewers(viewers: number): string {
 }
 
 export default function LiveshowSection() {
+  const router = useRouter();
+
+  const handleLiveshowClick = (userName: string) => {
+    router.push(`/live/${userName}`);
+  };
+
   return (
     <section className="liveshow-section">
       <div className="liveshow-container">
@@ -120,7 +138,12 @@ export default function LiveshowSection() {
         {/* Liveshow Cards Grid */}
         <div className="liveshow-grid">
           {liveshowData.slice(0, 10).map((liveshow) => (
-            <div key={liveshow.id} className="liveshow-card">
+            <div 
+              key={liveshow.id} 
+              className="liveshow-card"
+              onClick={() => handleLiveshowClick(liveshow.userName)}
+              style={{ cursor: 'pointer' }}
+            >
               {/* Profile Image Section */}
               <div className="liveshow-image">
                 <div 
@@ -161,7 +184,6 @@ export default function LiveshowSection() {
                 
                 <div className="liveshow-actions">
                   <button className="follow-btn-small">Theo dõi</button>
-                  <button className="watch-btn-small">Xem ngay</button>
                 </div>
               </div>
             </div>

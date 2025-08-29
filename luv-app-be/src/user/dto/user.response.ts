@@ -13,23 +13,26 @@ export class UserResponse {
   email: string;
 
   @Field({ nullable: true })
-  avatar?: string;
+  google_id?: string;
 
-  @Field()
-  displayName: string;
+  @Field({ nullable: true })
+  avatar_url?: string;
+
+  @Field({ nullable: true })
+  display_name?: string;
 
   @Field(() => UserRole)
   role: UserRole;
 
   @Field()
-  isActive: boolean;
+  is_active: boolean;
 
   @Field({ nullable: true })
-  lastLoginAt?: Date;
+  last_login_at?: Date;
 
   @Field()
-  createdAt: Date;
+  created_at: Date;
 
   @Field()
-  updatedAt: Date;
+  updated_at: Date;
 }

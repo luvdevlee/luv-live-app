@@ -3,30 +3,19 @@
 # ------------------------------------------------------
 
 type AuthResponse {
-  accessToken: String!
-  refreshToken: String!
+  access_token: String!
+  refresh_token: String!
   user: User!
 }
 
-input CreateStreamDto {
-  category: String!
-  description: String
-  scheduledAt: String
-  thumbnail: String
-  title: String!
-}
-
-input CreateStreamerDto {
-  bio: String
-  stageName: String!
-}
-
 input CreateUserDto {
-  avatar: String
-  displayName: String
+  avatar_url: String
+  display_name: String
   email: String!
-  googleId: String
+  google_id: String
+  is_active: Boolean
   password: String
+  role: UserRole
   username: String!
 }
 
@@ -40,130 +29,83 @@ input LoginInput {
   password: String!
 }
 
+type LogoutResponse {
+  message: String!
+  success: Boolean!
+}
+
 type Mutation {
-  createStream(createStreamDto: CreateStreamDto!, streamerId: String!): StreamResponse!
-  createStreamer(createStreamerDto: CreateStreamerDto!, userId: String!): Streamer!
+  """Create a new user (admin only)"""
   createUser(createUserDto: CreateUserDto!): UserResponse!
-  endStream(id: String!): StreamResponse!
+
+  """Login with email and password"""
   login(loginInput: LoginInput!): AuthResponse!
-  logout: Boolean!
-  refreshTokens(refreshToken: String!): AuthResponse!
-  register(createUserDto: CreateUserDto!): AuthResponse!
-  removeStream(id: String!): StreamResponse!
-  removeStreamer(id: String!): Streamer!
-  removeUser(id: String!): UserResponse!
-  setPlaybackUrl(id: String!, playbackUrl: String!): StreamResponse!
-  startStream(id: String!): StreamResponse!
-  updateStream(id: String!, updateStreamDto: UpdateStreamDto!): StreamResponse!
-  updateStreamer(id: String!, updateStreamerDto: UpdateStreamerDto!): Streamer!
-  updateUser(id: String!, updateUserDto: UpdateUserDto!): UserResponse!
-  verifyStreamer(id: String!): Streamer!
+
+  """Logout from the system"""
+  logout: LogoutResponse!
+
+  """Refresh access token"""
+  refreshToken(refreshTokenInput: RefreshTokenInput!): RefreshTokenResponse!
+
+  """Register a new account"""
+  register(registerUserDto: RegisterUserDto!): AuthResponse!
 }
 
 type Query {
-  liveStreams: [StreamResponse!]!
-  me: User!
-  scheduledStreams: [StreamResponse!]!
-  stream(id: String!): StreamResponse!
-  streamer(id: String!): Streamer!
-  streamerByStageName(stageName: String!): Streamer!
-  streamerByUserId(userId: String!): Streamer!
-  streamers: [Streamer!]!
-  streams: [StreamResponse!]!
-  streamsByCategory(category: String!): [StreamResponse!]!
-  streamsByStreamer(streamerId: String!): [StreamResponse!]!
+  """Get current user profile"""
+  me: UserResponse!
+
+  """Get user by ID"""
   user(id: String!): UserResponse!
+
+  """Get user by username (public)"""
   userByUsername(username: String!): UserResponse!
+
+  """Get all active users (admin only)"""
   users: [UserResponse!]!
-  verifiedStreamers: [Streamer!]!
 }
 
-type StreamResponse {
-  _id: ID!
-  category: String!
-  createdAt: DateTime!
-  description: String
-  endedAt: DateTime
-  maxViewers: Float!
-  playbackUrl: String
-  scheduledAt: DateTime
-  startedAt: DateTime
-  status: StreamStatus!
-  streamKey: String
-  streamer: Streamer!
-  streamerId: ID!
-  thumbnail: String
-  title: String!
-  totalViewers: Float!
-  updatedAt: DateTime!
+input RefreshTokenInput {
+  refresh_token: String!
 }
 
-"""Stream status"""
-enum StreamStatus {
-  ENDED
-  LIVE
-  SCHEDULED
+type RefreshTokenResponse {
+  access_token: String!
 }
 
-type Streamer {
-  _id: ID!
-  bio: String
-  createdAt: DateTime!
-  isVerified: Boolean!
-  stageName: String!
-  totalFollowers: Float!
-  totalViews: Float!
-  updatedAt: DateTime!
-  user: User!
-  userId: ID!
-}
-
-input UpdateStreamDto {
-  category: String
-  description: String
-  scheduledAt: String
-  thumbnail: String
-  title: String
-}
-
-input UpdateStreamerDto {
-  bio: String
-  isVerified: Boolean
-  stageName: String
-}
-
-input UpdateUserDto {
-  avatar: String
-  displayName: String
-  email: String
-  isActive: Boolean
-  username: String
+input RegisterUserDto {
+  avatar_url: String
+  display_name: String
+  email: String!
+  password: String!
+  username: String!
 }
 
 type User {
   _id: ID!
-  avatar: String
-  createdAt: DateTime!
-  displayName: String
+  avatar_url: String
+  created_at: DateTime!
+  display_name: String
   email: String!
-  googleId: String
-  isActive: Boolean!
-  lastLoginAt: DateTime
+  google_id: String
+  is_active: Boolean!
+  last_login_at: DateTime
   role: UserRole!
-  updatedAt: DateTime!
+  updated_at: DateTime!
   username: String!
 }
 
 type UserResponse {
   _id: ID!
-  avatar: String
-  createdAt: DateTime!
-  displayName: String!
+  avatar_url: String
+  created_at: DateTime!
+  display_name: String
   email: String!
-  isActive: Boolean!
-  lastLoginAt: DateTime
+  google_id: String
+  is_active: Boolean!
+  last_login_at: DateTime
   role: UserRole!
-  updatedAt: DateTime!
+  updated_at: DateTime!
   username: String!
 }
 

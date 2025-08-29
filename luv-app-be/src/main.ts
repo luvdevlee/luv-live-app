@@ -3,24 +3,10 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from '@src/app.module';
 import helmet from 'helmet';
 import compression from 'compression';
-import { environmentVariablesConfig } from '@src/config/app.config';
-import session from 'express-session';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  // Add session middleware
-  app.use(
-    session({
-      secret: environmentVariablesConfig.jwtSecret!,
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        secure: environmentVariablesConfig.nodeEnv === 'production',
-        maxAge: 24 * 60 * 60 * 1000,
-      },
-    }),
-  );
 
   // Security middlewares
   app.use(
@@ -49,33 +35,21 @@ async function bootstrap() {
 
   app.use(compression());
 
-  // CORS configuration
-  app.enableCors({
-    origin: environmentVariablesConfig.corsOrigin!.split(','),
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      'Apollo-Require-Preflight',
-      'X-Apollo-Operation-Name',
-      'X-Requested-With',
-    ],
-  });
-
   // Global validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
       transform: true,
-      transformOptions: {
-        enableImplicitConversion: true,
-      },
+      whitelist: true,
+      forbidUnknownValues: true,
+      stopAtFirstError: true,
+      validateCustomDecorators: true,
     }),
   );
 
-  const port = environmentVariablesConfig.port;
+  const configService = app.get(ConfigService);
+
+  const port = configService.get('PORT');
+
   await app.listen(port);
 
   console.log(`🚀 GraphQL Playground: http://localhost:${port}/graphql`);
