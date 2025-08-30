@@ -1,0 +1,186 @@
+# Stream API Test Files
+# Sử dụng với REST Client extension trong VS Code
+
+@baseUrl = http://localhost:8000/graphql
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OGIwMjJjYWI1OGY1ZjMyNDVjYTY4YTIiLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NjUzNzc1MywiZXhwIjoxNzU2NjI0MTUzfQ.Ybq8XZL3w1idcxj4oDnKAVTYTCv2D_QKhun2pdUWTWM
+
+### 1. Tạo stream mới (Cần auth token)
+POST {{baseUrl}}
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "query": "mutation CreateStream($input: CreateStreamDto!) { createStream(createStreamDto: $input) { _id title description category status privacy thumbnail_url media_url user_id createdAt updatedAt user { username display_name } } }",
+  "variables": {
+    "input": {
+      "title": "My Gaming Stream",
+      "description": "Playing the latest games live!",
+      "category": "Gaming",
+      "privacy": "PUBLIC",
+      "thumbnail_url": "https://example.com/thumbnail.jpg"
+    }
+  }
+}
+
+### 2. Lấy danh sách streams (Public)
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "query": "query GetStreams($query: StreamsQueryDto) { streams(query: $query) { streams { _id title description category status privacy thumbnail_url user_id createdAt user { username display_name avatar_url } } meta { currentPage totalPages totalCount limit hasNext hasPrev } } }",
+  "variables": {
+    "query": {
+      "page": 1,
+      "limit": 10,
+      "status": "LIVE"
+    }
+  }
+}
+
+### 3. Lấy chi tiết một stream (Public)
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "query": "query GetStream($id: String!) { stream(id: $id) { _id title description category status privacy thumbnail_url media_url user_id createdAt updatedAt user { _id username display_name avatar_url } } }",
+  "variables": {
+    "id": "STREAM_ID_HERE"
+  }
+}
+
+### 4. Lấy streams của tôi (Cần auth)
+POST {{baseUrl}}
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "query": "query GetMyStreams($query: StreamsQueryDto) { myStreams(query: $query) { streams { _id title description category status privacy thumbnail_url media_url createdAt updatedAt } meta { currentPage totalPages totalCount } } }",
+  "variables": {
+    "query": {
+      "page": 1,
+      "limit": 20
+    }
+  }
+}
+
+### 5. Cập nhật stream (Cần auth + ownership)
+POST {{baseUrl}}
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "query": "mutation UpdateStream($id: String!, $input: UpdateStreamDto!) { updateStream(id: $id, updateStreamDto: $input) { _id title description category status privacy thumbnail_url media_url updatedAt } }",
+  "variables": {
+    "id": "STREAM_ID_HERE",
+    "input": {
+      "title": "Updated Stream Title",
+      "description": "Updated description"
+    }
+  }
+}
+
+### 6. Kết thúc stream (Cần auth + ownership)
+POST {{baseUrl}}
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "query": "mutation EndStream($id: String!) { endStream(id: $id) { _id status updatedAt } }",
+  "variables": {
+    "id": "STREAM_ID_HERE"
+  }
+}
+
+### 7. Xóa stream (Cần auth + ownership)
+POST {{baseUrl}}
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "query": "mutation RemoveStream($id: String!) { removeStream(id: $id) }",
+  "variables": {
+    "id": "STREAM_ID_HERE"
+  }
+}
+
+### 8. Lấy streams theo user (Public)
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "query": "query GetStreamsByUser($userId: String!) { streamsByUser(userId: $userId) { _id title description status privacy thumbnail_url createdAt user { username display_name } } }",
+  "variables": {
+    "userId": "USER_ID_HERE"
+  }
+}
+
+### 9. Tìm kiếm streams (Public)
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "query": "query SearchStreams($query: StreamsQueryDto) { streams(query: $query) { streams { _id title description category status privacy user { username } } meta { totalCount } } }",
+  "variables": {
+    "query": {
+      "page": 1,
+      "limit": 10,
+      "search": "gaming",
+      "category": "Gaming",
+      "sortBy": "createdAt",
+      "sortOrder": "DESC"
+    }
+  }
+}
+
+### 10. Lấy thống kê streams (Cần auth)
+POST {{baseUrl}}
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "query": "query GetStreamStats($userId: String) { streamStats(userId: $userId) { totalStreams liveStreams endedStreams publicStreams privateStreams } }"
+}
+
+### 11. Lấy thống kê toàn cầu (Admin only)
+POST {{baseUrl}}
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "query": "query GetGlobalStreamStats { globalStreamStats { totalStreams liveStreams endedStreams publicStreams privateStreams } }"
+}
+
+### 12. Lấy danh sách streams đơn giản (Public)
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "query": "query GetStreamsSimple { streamsSimple { _id title status thumbnail_url user_id } }"
+}
+
+### 13. Admin - Xem tất cả streams (Admin only)
+POST {{baseUrl}}
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "query": "query GetStreamsAdmin($query: StreamsQueryDto) { streamsAdmin(query: $query) { streams { _id title description status privacy user_id createdAt user { username email } } meta { currentPage totalPages totalCount } } }",
+  "variables": {
+    "query": {
+      "page": 1,
+      "limit": 50,
+      "privacy": "PRIVATE"
+    }
+  }
+}
+
+### 14. Test với user relationship
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "query": "query GetUser($id: String!) { user(id: $id) { _id username email streams { _id title status createdAt } } }",
+  "variables": {
+    "id": "USER_ID_HERE"
+  }
+}

@@ -8,6 +8,16 @@ type AuthResponse {
   user: User!
 }
 
+input CreateStreamDto {
+  category: String
+  description: String
+  media_url: String
+  privacy: PrivacyStatus
+  status: Status
+  thumbnail_url: String
+  title: String!
+}
+
 input CreateUserDto {
   avatar_url: String
   display_name: String
@@ -35,11 +45,17 @@ type LogoutResponse {
 }
 
 type Mutation {
+  """Create a new stream (streamers and admins only)"""
+  createStream(createStreamDto: CreateStreamDto!): StreamResponse!
+
   """Create a new user (admin only)"""
   createUser(createUserDto: CreateUserDto!): UserResponse!
 
   """Permanently delete user (hard delete - admin only)"""
   deleteUser(userId: String!): Boolean!
+
+  """End stream (owner and admin only)"""
+  endStream(id: String!): StreamResponse!
 
   """Login with email and password"""
   login(loginInput: LoginInput!): AuthResponse!
@@ -53,8 +69,14 @@ type Mutation {
   """Register a new account"""
   register(registerUserDto: RegisterUserDto!): AuthResponse!
 
+  """Delete stream (owner and admin only)"""
+  removeStream(id: String!): Boolean!
+
   """Deactivate user (soft delete - admin only)"""
   removeUser(userId: String!): Boolean!
+
+  """Update stream (owner and admin only)"""
+  updateStream(id: String!, updateStreamDto: UpdateStreamDto!): StreamResponse!
 }
 
 type PaginationMeta {
@@ -66,9 +88,39 @@ type PaginationMeta {
   totalPages: Int!
 }
 
+"""Stream privacy - public or private"""
+enum PrivacyStatus {
+  PRIVATE
+  PUBLIC
+}
+
 type Query {
+  """Get global stream statistics (admin only)"""
+  globalStreamStats: StreamStatsResponse!
+
   """Get current user profile"""
   me: UserResponse!
+
+  """Get current user streams"""
+  myStreams(query: StreamsQueryDto): StreamsPaginatedResponse!
+
+  """Get stream by ID"""
+  stream(id: String!): StreamResponse!
+
+  """Get stream statistics"""
+  streamStats(userId: String): StreamStatsResponse!
+
+  """Get streams with pagination and filtering (public)"""
+  streams(query: StreamsQueryDto): StreamsPaginatedResponse!
+
+  """Get all streams with admin permissions (admin only)"""
+  streamsAdmin(query: StreamsQueryDto): StreamsPaginatedResponse!
+
+  """Get public streams by user ID"""
+  streamsByUser(userId: String!): [StreamResponse!]!
+
+  """Get simple list of public live streams (for backward compatibility)"""
+  streamsSimple: [StreamResponse!]!
 
   """Get user by ID"""
   user(id: String!): UserResponse!
@@ -99,6 +151,66 @@ input RegisterUserDto {
   username: String!
 }
 
+"""Stream status - live or ended"""
+enum Status {
+  ENDED
+  LIVE
+}
+
+type StreamResponse {
+  _id: ID!
+  category: String
+  createdAt: DateTime!
+  description: String
+  media_url: String
+  privacy: PrivacyStatus!
+  status: Status!
+  thumbnail_url: String
+  title: String!
+  updatedAt: DateTime!
+  user: UserResponse
+  user_id: ID!
+}
+
+type StreamStatsResponse {
+  endedStreams: Int!
+  liveStreams: Int!
+  privateStreams: Int!
+  publicStreams: Int!
+  totalStreams: Int!
+}
+
+type StreamsPaginatedResponse {
+  meta: PaginationMeta!
+  streams: [StreamResponse!]!
+}
+
+input StreamsQueryDto {
+  category: String
+  limit: Int = 10
+  page: Int = 1
+  privacy: PrivacyStatus
+
+  """Search by title, description, category"""
+  search: String
+
+  """Sort by: createdAt, updatedAt, title"""
+  sortBy: String = "createdAt"
+  sortOrder: String = "DESC"
+  status: Status
+  user_id: String
+}
+
+input UpdateStreamDto {
+  category: String
+  description: String
+  media_url: String
+  privacy: PrivacyStatus
+  status: Status
+  thumbnail_url: String
+  title: String
+}
+
 type User {
   _id: ID!
   avatar_url: String
@@ -109,6 +221,7 @@ type User {
   is_active: Boolean!
   last_login_at: DateTime
   role: UserRole!
+  streams: [StreamResponse!]!
   updatedAt: DateTime!
   username: String!
 }
@@ -123,6 +236,7 @@ type UserResponse {
   is_active: Boolean!
   last_login_at: DateTime
   role: UserRole!
+  streams: [StreamResponse!]
   updatedAt: DateTime!
   username: String!
 }

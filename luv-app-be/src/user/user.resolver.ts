@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ResolveField, Parent } from '@nestjs/graphql';
 import { UseGuards, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User, UserRole } from './schemas/user.schema';
@@ -9,10 +9,15 @@ import { UsersPaginatedResponse } from './dto/users-paginated.response';
 import { CurrentUser } from '@src/common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '@src/auth/guards/jwt-auth.guard';
 import type { AuthUser } from './dto/auth-user.dto';
+import { StreamResponse } from '@src/stream/dto/stream.response';
+import { StreamService } from '@src/stream/stream.service';
 
 @Resolver(() => User)
 export class UserResolver {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly streamService: StreamService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => UserResponse, {
@@ -130,5 +135,16 @@ export class UserResolver {
     }
 
     return this.userService.deleteUser(userId);
+  }
+
+  // Field Resolver để populate streams của user
+  @ResolveField(() => [StreamResponse])
+  async streams(@Parent() user: UserResponse): Promise<StreamResponse[]> {
+    try {
+      return await this.streamService.findByUser(user._id);
+    } catch (error) {
+      // Nếu có lỗi, trả về array rỗng thay vì throw error
+      return [];
+    }
   }
 }

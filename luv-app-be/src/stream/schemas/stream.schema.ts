@@ -2,15 +2,24 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
 
-export enum StreamStatus {
-  SCHEDULED = 'scheduled',
+export enum Status {
   LIVE = 'live',
   ENDED = 'ended',
 }
 
-registerEnumType(StreamStatus, {
-  name: 'StreamStatus',
-  description: 'Stream status',
+export enum PrivacyStatus {
+  PUBLIC = 'public',
+  PRIVATE = 'private',
+}
+
+registerEnumType(Status, {
+  name: 'Status',
+  description: 'Stream status - live or ended',
+});
+
+registerEnumType(PrivacyStatus, {
+  name: 'PrivacyStatus', 
+  description: 'Stream privacy - public or private',
 });
 
 @ObjectType()
@@ -20,8 +29,8 @@ export class Stream {
   _id: string;
 
   @Field(() => ID)
-  @Prop({ type: Types.ObjectId, ref: 'Streamer', required: true })
-  streamerId: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  user_id: Types.ObjectId;
 
   @Field()
   @Prop({ required: true })
@@ -30,46 +39,26 @@ export class Stream {
   @Field({ nullable: true })
   @Prop()
   description?: string;
-
+  
   @Field({ nullable: true })
-  @Prop()
-  thumbnail?: string;
-
-  @Field()
   @Prop({ required: true })
-  category: string;
+  category?: string;
 
-  @Field(() => StreamStatus)
-  @Prop({ enum: StreamStatus, default: StreamStatus.SCHEDULED })
-  status: StreamStatus;
+  @Field(() => Status)
+  @Prop({ enum: Status, default: Status.LIVE })
+  status: Status;
 
-  @Field({ nullable: true })
-  @Prop()
-  scheduledAt?: Date;
-
-  @Field({ nullable: true })
-  @Prop()
-  startedAt?: Date;
+  @Field(() => PrivacyStatus)
+  @Prop({ enum: PrivacyStatus, default: PrivacyStatus.PUBLIC })
+  privacy: PrivacyStatus;
 
   @Field({ nullable: true })
   @Prop()
-  endedAt?: Date;
-
-  @Field()
-  @Prop({ default: 0 })
-  maxViewers: number;
-
-  @Field()
-  @Prop({ default: 0 })
-  totalViewers: number;
-
-  @Field({ nullable: true })
-  @Prop({ unique: true })
-  streamKey?: string;
+  thumbnail_url?: string;
 
   @Field({ nullable: true })
   @Prop()
-  playbackUrl?: string;
+  media_url?: string;
 
   @Field()
   createdAt: Date;
@@ -82,6 +71,8 @@ export type StreamDocument = Stream & Document;
 export const StreamSchema = SchemaFactory.createForClass(Stream);
 
 // Indexes
-StreamSchema.index({ streamerId: 1 });
+StreamSchema.index({ user_id: 1 });
 StreamSchema.index({ status: 1 });
-StreamSchema.index({ scheduledAt: 1 });
+StreamSchema.index({ privacy: 1 });
+StreamSchema.index({ createdAt: -1 });
+StreamSchema.index({ updatedAt: -1 });
