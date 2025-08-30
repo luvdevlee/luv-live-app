@@ -4,12 +4,17 @@ import { AppModule } from '@src/app.module';
 import helmet from 'helmet';
 import compression from 'compression';
 import { ConfigService } from '@nestjs/config';
+import cors from "cors";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Security middlewares
   app.use(
+    cors({
+      origin: "http://localhost:3000",
+      credentials: true,
+    }),
     helmet({
       crossOriginEmbedderPolicy: false,
       contentSecurityPolicy: {
