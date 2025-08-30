@@ -3,6 +3,7 @@
 import { Streamer } from "@/types/streamer";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import "@/app/live/[userName]/livestream.css";
 
 interface LuvRoomTheaterSectionProps {
   streamer: Streamer;
@@ -28,7 +29,7 @@ export default function LuvRoomTheaterSection({ streamer }: LuvRoomTheaterSectio
     <div className="luv-room_theater-section">
       <div className="user-main-header">
         <div className="user-profile-section">
-          <div 
+          <div
             className="user-avatar-live"
             onClick={handleProfileClick}
             style={{ cursor: 'pointer' }}
@@ -42,7 +43,7 @@ export default function LuvRoomTheaterSection({ streamer }: LuvRoomTheaterSectio
             />
             <div className="live-indicator"></div>
           </div>
-          <h1 
+          <h1
             className="user-display-name"
             onClick={handleProfileClick}
             style={{ cursor: 'pointer' }}
@@ -68,7 +69,7 @@ export default function LuvRoomTheaterSection({ streamer }: LuvRoomTheaterSectio
           </div>
         </div>
       </div>
-      <div 
+      <div
         className="video-player-placeholder"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -79,7 +80,7 @@ export default function LuvRoomTheaterSection({ streamer }: LuvRoomTheaterSectio
           alt="Test video thumbnail"
           className="livestream-video"
         />
-        
+
         {/* Video Overlay */}
         {isOverlayActive && (
           <div className="video-overlay">
@@ -87,13 +88,14 @@ export default function LuvRoomTheaterSection({ streamer }: LuvRoomTheaterSectio
               <div className="overlay-title">{streamer.streamTitle}</div>
               <div className="overlay-streamer">{streamer.displayName}</div>
             </div>
-            
+
             <div className="live-indicator-overlay">
               <div className="live-dot"></div>
               <span className="live-text">LIVE</span>
             </div>
-            
+
             <div className="overlay-controls">
+
               <button className="overlay-button play-pause">
                 <span className="control-icon">⏸️</span>
               </button>
@@ -103,6 +105,7 @@ export default function LuvRoomTheaterSection({ streamer }: LuvRoomTheaterSectio
               <button className="overlay-button fullscreen">
                 <span className="control-icon">⛶</span>
               </button>
+
             </div>
           </div>
         )}

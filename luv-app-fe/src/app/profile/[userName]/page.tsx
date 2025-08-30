@@ -5,6 +5,7 @@ import "./profile.css";
 import ReplayVideoSection from "@/components/layout/ReplayVideoSection";
 import TopVideoSection from "@/components/layout/TopVideoSection";
 import "@/app/live/[userName]/livestream.css"
+import Image from "next/image";
 
 interface ProfilePageProps {
   params: Promise<{
@@ -58,7 +59,9 @@ export default function ProfilePage({ params }: ProfilePageProps) {
           {/* User Avatar */}
           <div className="user-avatar-container">
             {userData.avatar ? (
-              <img
+              <Image
+                width={100}
+                height={100}
                 src={userData.avatar}
                 alt={userData.userName}
                 className="user-avatar"

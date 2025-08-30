@@ -15,6 +15,8 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponse } from './dto/user.response';
 import { BcryptService } from '@src/auth/bcrypt.service';
+import { UsersQueryDto } from './dto/users-query.dto';
+import { UsersPaginatedResponse, PaginationMeta } from './dto/users-paginated.response';
 
 @Injectable()
 export class UserService {
@@ -61,14 +63,16 @@ export class UserService {
         role: savedUser.role,
         is_active: savedUser.is_active,
         last_login_at: savedUser.last_login_at,
-        created_at: savedUser.created_at,
-        updated_at: savedUser.updated_at,
+        createdAt: savedUser.createdAt,
+        updatedAt: savedUser.updatedAt,
       };
     } catch (error) {
       if (error instanceof ConflictException) {
         throw error;
       }
-
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
       this.logger.error(`Register failed: ${error.message}`, error.stack);
       throw new BadRequestException('Failed to register!');
     }
@@ -127,7 +131,92 @@ export class UserService {
       .exec();
   }
 
-  async findOne(id: string): Promise<User> {
+  async findAllPaginated(queryDto: UsersQueryDto): Promise<UsersPaginatedResponse> {
+    const { page = 1, limit = 10, search, role, is_active, sortBy = 'createdAt', sortOrder = 'DESC' } = queryDto;
+    
+    const filter: any = {};
+    
+    if (is_active !== undefined) {
+      filter.is_active = is_active;
+    }
+    
+    if (role) {
+      filter.role = role;
+    }
+    
+    if (search && search.trim()) {
+      filter.$or = [
+        { username: { $regex: search.trim(), $options: 'i' } },
+        { email: { $regex: search.trim(), $options: 'i' } },
+        { display_name: { $regex: search.trim(), $options: 'i' } },
+      ];
+    }
+
+    const skip = (page - 1) * limit;
+    
+    const sortConfig: any = {};
+    sortConfig[sortBy] = sortOrder === 'ASC' ? 1 : -1;
+
+    try {
+      const [users, totalCount] = await Promise.all([
+        this.userModel
+          .find(filter)
+          .select('-password_hash')
+          .sort(sortConfig)
+          .skip(skip)
+          .limit(limit)
+          .lean()
+          .exec(),
+        this.userModel.countDocuments(filter).exec(),
+      ]);
+
+      const totalPages = Math.ceil(totalCount / limit);
+      const hasNext = page < totalPages;
+      const hasPrev = page > 1;
+
+      const meta: PaginationMeta = {
+        currentPage: page,
+        totalPages,
+        totalCount,
+        limit,
+        hasNext,
+        hasPrev,
+      };
+
+      const transformedUsers = users.map(user => this.transformUserResponse(user));
+
+      return {
+        users: transformedUsers,
+        meta,
+      };
+    } catch (error) {
+      this.logger.error(`Find users with pagination failed: ${error.message}`, error.stack);
+      throw new BadRequestException('Failed to fetch users');
+    }
+  }
+
+  /**
+   * Transform user document to response format with proper timestamps
+   */
+  private transformUserResponse(user: any): UserResponse {
+    const userResponse: UserResponse = {
+      _id: user._id.toString(),
+      username: user.username,
+      email: user.email,
+      google_id: user.google_id,
+      avatar_url: user.avatar_url,
+      display_name: user.display_name,
+      role: user.role,
+      is_active: user.is_active,
+      last_login_at: user.last_login_at,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+
+    return userResponse;
+  }
+
+  async findOne(id: string): Promise<UserResponse> {
     if (!id) {
       throw new BadRequestException('Invalid user ID format');
     }
@@ -141,10 +230,10 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    return user;
+    return this.transformUserResponse(user);
   }
 
-  async findByUsername(username: string): Promise<User> {
+  async findByUsername(username: string): Promise<UserResponse> {
     if (!username) {
       throw new BadRequestException('Username is required');
     }
@@ -158,7 +247,7 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    return user;
+    return this.transformUserResponse(user);
   }
 
   async findByEmail(email: string): Promise<User | null> {
@@ -288,22 +377,48 @@ export class UserService {
     return updatedUser;
   }
 
-  async remove(id: string): Promise<User> {
+  async removeUser(id: string): Promise<boolean> {
     if (!id) {
       throw new BadRequestException('Invalid user ID format');
     }
 
-    const deletedUser = await this.userModel
-      .findByIdAndUpdate(id, { is_active: false }, { new: true })
-      .select('-password_hash')
-      .exec();
-
-    if (!deletedUser) {
+    const user = await this.userModel.findById(id).exec();
+    if (!user) {
       throw new NotFoundException('User not found');
     }
 
+    if (!user.is_active) {
+      return false;
+    }
+
+    const updatedUser = await this.userModel
+      .findByIdAndUpdate(id, { is_active: false }, { new: true })
+      .exec();
+
+    if (!updatedUser) {
+      throw new NotFoundException('Failed to deactivate user');
+    }
+
     this.logger.log(`User deactivated successfully: ${id}`);
-    return deletedUser;
+    return true;
+  }
+
+  async deleteUser(id: string): Promise<boolean> {
+    if (!id) {
+      throw new BadRequestException('Invalid user ID format');
+    }
+    const user = await this.userModel.findById(id).exec();
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    if (user.role === UserRole.ADMIN) {
+      throw new BadRequestException('Cannot delete admin users');
+    }
+    const deletedUser = await this.userModel.findByIdAndDelete(id).exec();
+    if (!deletedUser) {
+      throw new NotFoundException('Failed to delete user');
+    }
+    return true;
   }
 
   async updateLastLogin(id: string): Promise<void> {
