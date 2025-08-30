@@ -45,6 +45,7 @@ export class AuthResolver {
   async register(
     @Args('registerUserDto') registerUserDto: RegisterUserDto,
   ): Promise<AuthResponse> {
+    console.log(registerUserDto);
     if (!registerUserDto) {
       throw new BadRequestException('Register user data is required');
     }

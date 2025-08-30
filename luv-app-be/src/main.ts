@@ -1,9 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { AppModule } from '@src/app.module';
 import helmet from 'helmet';
 import compression from 'compression';
 import { ConfigService } from '@nestjs/config';
+import cors from 'cors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -33,6 +34,16 @@ async function bootstrap() {
     }),
   );
 
+  app.use(
+    cors({
+      origin: process.env.CORS_ORIGIN || '*',
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: true,
+    }),
+  );
+  app.enableCors();
+
   app.use(compression());
 
   // Global validation pipe
@@ -40,9 +51,20 @@ async function bootstrap() {
     new ValidationPipe({
       transform: true,
       whitelist: true,
-      forbidUnknownValues: true,
-      stopAtFirstError: true,
-      validateCustomDecorators: true,
+      forbidNonWhitelisted: true,
+      exceptionFactory: (errors) => {
+        const messages = errors.map(error => {
+          const constraints = error.constraints;
+          return {
+            field: error.property,
+            errors: Object.values(constraints ?? {}),
+          };
+        });
+        
+        return new BadRequestException({
+          message: messages.map((m) => m.errors.join(', ')).join('; '),
+        });
+      },
     }),
   );
 
