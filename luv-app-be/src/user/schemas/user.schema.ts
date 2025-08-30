@@ -54,11 +54,12 @@ export class User {
   @Prop()
   last_login_at?: Date;
 
+  // Mongoose auto-generated timestamps
   @Field()
-  created_at: Date;
+  createdAt: Date;
 
   @Field()
-  updated_at: Date;
+  updatedAt: Date;
 }
 
 export type UserDocument = User & Document;
@@ -70,8 +71,8 @@ UserSchema.index({ username: 1 }, { unique: true });
 UserSchema.index({ google_id: 1 }, { unique: true, sparse: true });
 UserSchema.index({ role: 1 });
 UserSchema.index({ is_active: 1 });
-UserSchema.index({ created_at: -1 });
-UserSchema.index({ last_login_at: -1 });
+UserSchema.index({ createdAt: -1 });
+UserSchema.index({ updatedAt: -1 });
 
 // Compound indexes for common queries
 UserSchema.index({ email: 1, is_active: 1 });

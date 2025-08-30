@@ -38,7 +38,6 @@ export class AuthService {
 
   async register(registerUserDto: RegisterUserDto): Promise<AuthResponse> {
     try {
-      console.log(registerUserDto);
       await this.userService.register(registerUserDto);
       const user = await this.userService.findByUsername(
         registerUserDto.username,
