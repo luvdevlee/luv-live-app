@@ -17,7 +17,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
     email: '',
     password: '',
     userName: '',
-    displayName: '',
+    display_name: '',
     agreeTerms: false
   });
 
@@ -29,7 +29,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
         email: '',
         password: '',
         userName: '',
-        displayName: '',
+        display_name: '',
         agreeTerms: false
       });
     }
@@ -54,7 +54,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
         email: formData.email,
         password: formData.password,
         userName: formData.userName,
-        displayName: formData.displayName,
+        display_name: formData.display_name,
       });
 
       if (res.data.errors) {
@@ -173,7 +173,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
                   type="text"
                   id="displayName"
                   name="displayName"
-                  value={formData.displayName}
+                  value={formData.display_name}
                   onChange={handleInputChange}
                   className="form-input"
                   placeholder="Nhập tên hiển thị của bạn"
