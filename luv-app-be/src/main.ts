@@ -42,7 +42,6 @@ async function bootstrap() {
       credentials: true,
     }),
   );
-  app.enableCors();
 
   app.use(compression());
 

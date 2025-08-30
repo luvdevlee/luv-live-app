@@ -31,8 +31,8 @@ export class UserResponse {
   last_login_at?: Date;
 
   @Field()
-  created_at: Date;
+  createdAt: Date;
 
   @Field()
-  updated_at: Date;
+  updatedAt: Date;
 }
