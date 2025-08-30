@@ -118,9 +118,9 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
       }
 
       onClose();
-    } catch (err: any) {
-      console.error("❌ Lỗi:", err.message);
-      alert(err.message);
+    } catch (err: unknown) {
+      console.error("❌ Lỗi:", (err as Error).message);
+      alert((err as Error).message);
     } finally {
       setLoading(false);
     }
