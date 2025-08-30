@@ -1,491 +1,493 @@
-# LUV App Backend - Deployment Guide
+# 🚀 Hướng Dẫn Deployment Luv App Backend lên VPS Ubuntu 24.04 LTS
 
-This guide will help you deploy the LUV App Backend on Ubuntu 24.04 VPS at Digital Ocean.
+## 📋 Mục Lục
+1. [Chuẩn bị VPS tại DigitalOcean](#1-chuẩn-bị-vps-tại-digitalocean)
+2. [Thiết lập Server Ubuntu 24.04 LTS](#2-thiết-lập-server-ubuntu-2404-lts)
+3. [Cài đặt Dependencies](#3-cài-đặt-dependencies)
+4. [Cấu hình MongoDB Cloud](#4-cấu-hình-mongodb-cloud)
+5. [Deploy Ứng dụng](#5-deploy-ứng-dụng)
+6. [Cấu hình Nginx](#6-cấu-hình-nginx)
+7. [Cài đặt SSL với Let's Encrypt](#7-cài-đặt-ssl-với-lets-encrypt)
+8. [Monitoring và Backup](#8-monitoring-và-backup)
+9. [Troubleshooting](#9-troubleshooting)
 
-## 🚀 Quick Start
+---
 
-### Prerequisites
+## 1. Chuẩn bị VPS tại DigitalOcean
 
-- Ubuntu 24.04 VPS at Digital Ocean
-- SSH access to your VPS
-- Domain name (optional but recommended for production)
-
-### Automated Deployment
-
-1. **Connect to your VPS:**
-   ```bash
-   ssh root@your-vps-ip
-   ```
-
-2. **Create a non-root user (recommended):**
-   ```bash
-   adduser luvuser
-   usermod -aG sudo luvuser
-   su - luvuser
-   ```
-
-3. **Clone the repository:**
-   ```bash
-   git clone https://github.com/your-username/luv-app-be.git
-   cd luv-app-be
-   ```
-
-4. **Run the deployment script:**
-   ```bash
-   chmod +x deploy.sh
-   ./deploy.sh
-   ```
-
-5. **Configure environment variables:**
-   ```bash
-   nano .env
-   ```
-
-## 📋 Manual Deployment Steps
-
-If you prefer manual deployment, follow these steps:
-
-### 1. System Setup
-
+### 1.1 Tạo Droplet mới
 ```bash
-# Update system
-sudo apt update && sudo apt upgrade -y
-
-# Install required packages
-sudo apt install -y \
-    apt-transport-https \
-    ca-certificates \
-    curl \
-    gnupg \
-    lsb-release \
-    software-properties-common \
-    git \
-    unzip \
-    htop \
-    ufw
+# Thông số khuyến nghị:
+- OS: Ubuntu 24.04 LTS x64
+- Plan: Basic - $12/month (2GB RAM, 1 vCPU, 50GB SSD)
+- Datacenter: Singapore (gần Việt Nam nhất)
+- Additional options: IPv6, Monitoring
+- Authentication: SSH Key (khuyến nghị) hoặc Password
 ```
 
-### 2. Install Docker
-
+### 1.2 Kết nối đến VPS
 ```bash
-# Add Docker GPG key
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-
-# Add Docker repository
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-# Install Docker
-sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-
-# Add user to docker group
-sudo usermod -aG docker $USER
-
-# Log out and log back in for group changes to take effect
-```
-
-### 3. Install Docker Compose
-
-```bash
-sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-```
-
-### 4. Configure Firewall
-
-```bash
-sudo ufw --force enable
-sudo ufw default deny incoming
-sudo ufw default allow outgoing
-sudo ufw allow ssh
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw allow 3000/tcp
-```
-
-### 5. Setup Application
-
-```bash
-# Create application directory
-sudo mkdir -p /opt/luv-app
-sudo chown $USER:$USER /opt/luv-app
-cd /opt/luv-app
-
-# Copy application files
-cp -r /path/to/your/luv-app-be/* .
-
-# Create SSL directory
-sudo mkdir -p /etc/nginx/ssl
-sudo chown $USER:$USER /etc/nginx/ssl
-
-# Create logs directory
-mkdir -p logs
-```
-
-### 6. Configure Environment
-
-Create `.env` file:
-
-```bash
-nano .env
-```
-
-Add the following configuration:
-
-```env
-# Application Configuration
-NODE_ENV=production
-PORT=3000
-
-# Database Configuration
-MONGODB_URI=mongodb://mongo:27017/luv-app
-
-# CORS Configuration
-CORS_ORIGIN=https://your-frontend-domain.com,https://your-api-domain.com
-
-# JWT Configuration
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-JWT_EXPIRES_IN=1d
-JWT_REFRESH_SECRET=your-super-secret-refresh-key-change-this-in-production
-JWT_REFRESH_EXPIRES_IN=7d
-
-# Google OAuth Configuration
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-GOOGLE_CALLBACK_URL=https://your-domain.com/auth/google/callback
-
-# Frontend Configuration
-FRONTEND_URL=https://your-frontend-domain.com
-
-# Rate Limiting
-THROTTLE_TTL=60
-THROTTLE_LIMIT=100
-```
-
-### 7. Generate SSL Certificate
-
-For development (self-signed):
-```bash
-sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-    -keyout /etc/nginx/ssl/key.pem \
-    -out /etc/nginx/ssl/cert.pem \
-    -subj "/C=VN/ST=Hanoi/L=Hanoi/O=LUV App/OU=IT/CN=your-domain.com"
-```
-
-For production (Let's Encrypt):
-```bash
-sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d your-domain.com
-```
-
-### 8. Deploy Application
-
-```bash
-# Build and start services
-docker-compose build
-docker-compose up -d
-
-# Check status
-docker-compose ps
-
-# View logs
-docker-compose logs -f
-```
-
-## 🔧 Configuration
-
-### Environment Variables
-
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `NODE_ENV` | Environment mode | Yes | `production` |
-| `PORT` | Application port | Yes | `3000` |
-| `MONGODB_URI` | MongoDB connection string | Yes | - |
-| `CORS_ORIGIN` | Allowed CORS origins | Yes | - |
-| `JWT_SECRET` | JWT signing secret | Yes | - |
-| `JWT_EXPIRES_IN` | JWT expiration time | No | `1d` |
-| `JWT_REFRESH_SECRET` | JWT refresh secret | Yes | - |
-| `JWT_REFRESH_EXPIRES_IN` | JWT refresh expiration | No | `7d` |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID | Yes | - |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | Yes | - |
-| `GOOGLE_CALLBACK_URL` | Google OAuth callback URL | Yes | - |
-| `FRONTEND_URL` | Frontend application URL | Yes | - |
-| `THROTTLE_TTL` | Rate limiting time window | No | `60` |
-| `THROTTLE_LIMIT` | Rate limiting requests per window | No | `100` |
-
-### SSL Configuration
-
-For production, replace the self-signed certificate with a real one:
-
-1. **Using Let's Encrypt:**
-   ```bash
-   sudo apt install certbot python3-certbot-nginx
-   sudo certbot --nginx -d your-domain.com
-   ```
-
-2. **Using your own certificate:**
-   ```bash
-   # Copy your certificate files
-   sudo cp your-cert.pem /etc/nginx/ssl/cert.pem
-   sudo cp your-key.pem /etc/nginx/ssl/key.pem
-   sudo chown $USER:$USER /etc/nginx/ssl/*
-   ```
-
-## 🐳 Docker Commands
-
-### Basic Commands
-
-```bash
-# Start services
-docker-compose up -d
-
-# Stop services
-docker-compose down
-
-# Restart services
-docker-compose restart
-
-# View logs
-docker-compose logs -f
-
-# View specific service logs
-docker-compose logs -f app
-
-# Check service status
-docker-compose ps
-
-# Rebuild and start
-docker-compose up -d --build
-```
-
-### Maintenance Commands
-
-```bash
-# Update application
-git pull
-docker-compose up -d --build
-
-# Backup database
-docker-compose exec mongo mongodump --out /data/backup/$(date +%Y%m%d)
-
-# Restore database
-docker-compose exec mongo mongorestore /data/backup/20240101
-
-# Clean up unused images
-docker image prune -f
-
-# Clean up unused volumes
-docker volume prune -f
-```
-
-## 📊 Monitoring
-
-### Health Checks
-
-The application includes health checks for all services:
-
-- **Application:** `http://localhost:3000/health`
-- **MongoDB:** Database connection check
-- **Redis:** Cache connection check
-
-### Logs
-
-```bash
-# View all logs
-docker-compose logs -f
-
-# View specific service logs
-docker-compose logs -f app
-docker-compose logs -f mongo
-docker-compose logs -f redis
-docker-compose logs -f nginx
-
-# View logs with timestamps
-docker-compose logs -f -t
-```
-
-### Performance Monitoring
-
-```bash
-# Check resource usage
-docker stats
-
-# Check disk usage
-df -h
-
-# Check memory usage
-free -h
-
-# Monitor system resources
-htop
-```
-
-## 🔒 Security
-
-### Firewall Configuration
-
-```bash
-# Check firewall status
-sudo ufw status
-
-# Allow additional ports if needed
-sudo ufw allow 8080/tcp
-
-# Block specific IP
-sudo ufw deny from 192.168.1.100
-```
-
-### SSL/TLS Security
-
-- Use strong SSL certificates
-- Enable HSTS headers
-- Configure secure cipher suites
-- Regular certificate renewal
-
-### Application Security
-
-- Use strong JWT secrets
-- Implement rate limiting
-- Enable CORS properly
-- Use environment variables for secrets
-- Regular security updates
-
-## 🚨 Troubleshooting
-
-### Common Issues
-
-1. **Port already in use:**
-   ```bash
-   sudo netstat -tulpn | grep :3000
-   sudo kill -9 <PID>
-   ```
-
-2. **Permission denied:**
-   ```bash
-   sudo chown -R $USER:$USER /opt/luv-app
-   ```
-
-3. **Docker service not running:**
-   ```bash
-   sudo systemctl start docker
-   sudo systemctl enable docker
-   ```
-
-4. **SSL certificate issues:**
-   ```bash
-   sudo nginx -t
-   sudo systemctl reload nginx
-   ```
-
-### Debug Commands
-
-```bash
-# Check container status
-docker-compose ps
-
-# Check container logs
-docker-compose logs app
-
-# Enter container for debugging
-docker-compose exec app sh
-
-# Check network connectivity
-docker-compose exec app ping mongo
-
-# Check database connection
-docker-compose exec mongo mongosh
-```
-
-## 📈 Scaling
-
-### Horizontal Scaling
-
-To scale the application:
-
-1. **Update docker-compose.yml:**
-   ```yaml
-   app:
-     deploy:
-       replicas: 3
-   ```
-
-2. **Use Docker Swarm:**
-   ```bash
-   docker swarm init
-   docker stack deploy -c docker-compose.yml luv-app
-   ```
-
-### Load Balancing
-
-The Nginx configuration supports load balancing. Add more app instances:
-
-```nginx
-upstream backend {
-    server app:3000;
-    server app2:3000;
-    server app3:3000;
-}
-```
-
-## 🔄 Backup & Recovery
-
-### Database Backup
-
-```bash
-# Create backup script
-cat > backup.sh << 'EOF'
-#!/bin/bash
-DATE=$(date +%Y%m%d_%H%M%S)
-BACKUP_DIR="/opt/luv-app/backups"
-mkdir -p $BACKUP_DIR
-
-docker-compose exec mongo mongodump --out /data/backup/$DATE
-docker cp luv-app-mongo:/data/backup/$DATE $BACKUP_DIR/
-tar -czf $BACKUP_DIR/backup_$DATE.tar.gz -C $BACKUP_DIR $DATE
-rm -rf $BACKUP_DIR/$DATE
-
-# Keep only last 7 days of backups
-find $BACKUP_DIR -name "backup_*.tar.gz" -mtime +7 -delete
-EOF
-
-chmod +x backup.sh
-```
-
-### Automated Backups
-
-Add to crontab:
-```bash
-crontab -e
-# Add this line for daily backups at 2 AM
-0 2 * * * /opt/luv-app/backup.sh
-```
-
-## 📞 Support
-
-For issues and questions:
-
-1. Check the logs: `docker-compose logs -f`
-2. Review this documentation
-3. Check the application logs in `/opt/luv-app/logs`
-4. Contact the development team
-
-## 🔄 Updates
-
-To update the application:
-
-```bash
-# Pull latest changes
-git pull
-
-# Rebuild and restart
-docker-compose down
-docker-compose up -d --build
-
-# Check status
-docker-compose ps
-docker-compose logs -f
+# Thay your-server-ip bằng IP thực của VPS
+ssh root@your-server-ip
+
+# Hoặc nếu đã tạo user ubuntu
+ssh ubuntu@your-server-ip
 ```
 
 ---
 
-**Note:** This deployment guide is specifically designed for Ubuntu 24.04 VPS at Digital Ocean. For other environments, some modifications may be required.
+## 2. Thiết lập Server Ubuntu 24.04 LTS
+
+### 2.1 Chạy script setup tự động
+```bash
+# Upload script setup lên server
+scp scripts/setup-server.sh root@your-server-ip:/tmp/
+
+# Kết nối và chạy script
+ssh root@your-server-ip
+chmod +x /tmp/setup-server.sh
+/tmp/setup-server.sh
+```
+
+### 2.2 Setup thủ công (nếu muốn)
+
+#### Cập nhật hệ thống
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+#### Cài đặt Node.js 20.x LTS
+```bash
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+node --version  # Kiểm tra phiên bản
+npm --version
+```
+
+**Lưu ý:** Project này sử dụng MongoDB Cloud (Atlas), do đó không cần cài đặt MongoDB và Redis local trên server.
+
+#### Cài đặt Nginx
+```bash
+sudo apt install -y nginx
+sudo systemctl start nginx
+sudo systemctl enable nginx
+sudo systemctl status nginx
+```
+
+#### Cài đặt PM2
+```bash
+sudo npm install -g pm2
+```
+
+#### Cài đặt Certbot
+```bash
+sudo apt install -y certbot python3-certbot-nginx
+```
+
+#### Cấu hình Firewall
+```bash
+sudo ufw allow OpenSSH
+sudo ufw allow 'Nginx Full'
+sudo ufw allow 3000
+sudo ufw enable
+sudo ufw status
+```
+
+---
+
+## 3. Cài đặt Dependencies
+
+### 3.1 Tạo user ứng dụng
+```bash
+sudo adduser ubuntu
+sudo usermod -aG sudo ubuntu
+sudo mkdir -p /var/www/luv-app-be
+sudo chown ubuntu:ubuntu /var/www/luv-app-be
+```
+
+### 3.2 Tạo thư mục logs
+```bash
+sudo mkdir -p /var/log/luv-app-be
+sudo chown ubuntu:ubuntu /var/log/luv-app-be
+```
+
+---
+
+## 4. Cấu hình MongoDB Cloud
+
+### 4.1 Tạo MongoDB Atlas Cluster
+1. **Đăng ký/Đăng nhập MongoDB Atlas**
+   - Truy cập: https://cloud.mongodb.com/
+   - Tạo tài khoản hoặc đăng nhập
+
+2. **Tạo Cluster mới**
+   - Chọn "Build a Database"
+   - Chọn "Shared" (Free tier) hoặc "Dedicated" 
+   - Chọn Cloud Provider: AWS/GCP/Azure
+   - Chọn Region gần Việt Nam (Singapore)
+   - Đặt tên cluster: `luv-app-cluster`
+
+3. **Cấu hình Database User**
+   - Tạo user với username/password
+   - Gán quyền `Read and write to any database`
+   - Lưu thông tin đăng nhập
+
+### 4.2 Cấu hình Network Access
+```bash
+# Whitelist IP addresses
+# - Thêm IP của VPS server
+# - Hoặc cho phép "0.0.0.0/0" (tất cả IP) cho testing
+# - Khuyến nghị: chỉ whitelist IP cụ thể trong production
+```
+
+### 4.3 Lấy Connection String
+```bash
+# Trong Atlas Dashboard:
+# 1. Click "Connect" trên cluster
+# 2. Chọn "Connect your application"
+# 3. Copy connection string
+# Format: mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/luv-app?retryWrites=true&w=majority
+
+# Example:
+MONGODB_URI=mongodb+srv://luvapp:your-password@luv-app-cluster.xxxxx.mongodb.net/luv-app?retryWrites=true&w=majority&appName=Cluster0
+```
+
+### 4.4 Test kết nối từ VPS
+```bash
+# Cài đặt MongoDB tools để test
+wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2004-x86_64-100.7.0.deb
+sudo dpkg -i mongodb-database-tools-ubuntu2004-x86_64-100.7.0.deb
+
+# Test connection
+mongosh "mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/luv-app"
+```
+
+---
+
+## 5. Deploy Ứng dụng
+
+### 5.1 Clone repository
+```bash
+# Chuyển sang user ubuntu
+su - ubuntu
+
+# Clone repository
+cd /var/www
+git clone https://github.com/your-username/luv-app-be.git
+cd luv-app-be
+```
+
+### 5.2 Cấu hình Environment Variables
+```bash
+# Copy file environment example
+cp env.production.example .env.production
+
+# Chỉnh sửa các giá trị
+nano .env.production
+
+# Cập nhật các giá trị sau:
+NODE_ENV=production
+PORT=3000
+MONGODB_URI=mongodb+srv://luvapp:your-password@luv-app-cluster.xxxxx.mongodb.net/luv-app?retryWrites=true&w=majority&appName=Cluster0
+JWT_SECRET=your-super-secure-jwt-secret-key-minimum-32-characters-long
+CORS_ORIGIN=https://your-domain.com,https://www.your-domain.com
+```
+
+### 5.3 Cài đặt dependencies và build
+```bash
+npm ci --only=production
+npm run build
+```
+
+### 5.4 Khởi động với PM2
+```bash
+# Copy file ecosystem
+cp ecosystem.config.js ecosystem.config.production.js
+
+# Chỉnh sửa cấu hình nếu cần
+nano ecosystem.config.production.js
+
+# Khởi động ứng dụng
+pm2 start ecosystem.config.production.js --env production
+pm2 save
+pm2 startup
+```
+
+### 5.5 Kiểm tra ứng dụng
+```bash
+pm2 status
+pm2 logs luv-app-be
+curl http://localhost:3000/health
+```
+
+---
+
+## 6. Cấu hình Nginx
+
+### 6.1 Copy cấu hình Nginx
+```bash
+sudo cp nginx/luv-app-be.conf /etc/nginx/sites-available/
+```
+
+### 6.2 Chỉnh sửa cấu hình
+```bash
+sudo nano /etc/nginx/sites-available/luv-app-be
+
+# Thay thế your-domain.com bằng domain thực của bạn
+# Ví dụ: luv-app.example.com
+```
+
+### 6.3 Kích hoạt site
+```bash
+sudo ln -s /etc/nginx/sites-available/luv-app-be /etc/nginx/sites-enabled/
+sudo unlink /etc/nginx/sites-enabled/default
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+---
+
+## 7. Cài đặt SSL với Let's Encrypt
+
+### 7.1 Cấu hình DNS
+Trước khi cài SSL, đảm bảo DNS của domain đã trỏ đến IP của VPS:
+```bash
+# Kiểm tra DNS
+nslookup your-domain.com
+dig your-domain.com
+```
+
+### 7.2 Cài đặt SSL Certificate
+```bash
+sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+
+# Làm theo hướng dẫn trên màn hình
+# Chọn option redirect HTTP to HTTPS
+```
+
+### 7.3 Cấu hình auto-renewal
+```bash
+sudo crontab -e
+
+# Thêm dòng sau để auto renewal mỗi ngày lúc 2h sáng
+0 2 * * * /usr/bin/certbot renew --quiet
+```
+
+### 7.4 Test SSL
+```bash
+# Test SSL certificate
+sudo certbot certificates
+
+# Test renewal
+sudo certbot renew --dry-run
+```
+
+---
+
+## 8. Monitoring và Backup
+
+### 8.1 Cấu hình Log Rotation
+```bash
+sudo nano /etc/logrotate.d/luv-app-be
+
+# Nội dung:
+/var/log/luv-app-be/*.log {
+    daily
+    missingok
+    rotate 30
+    compress
+    delaycompress
+    notifempty
+    create 644 ubuntu ubuntu
+    postrotate
+        pm2 reloadLogs > /dev/null 2>&1 || true
+    endscript
+}
+```
+
+### 8.2 Setup MongoDB Cloud Backup
+```bash
+# View backup guide cho MongoDB Atlas
+chmod +x scripts/backup-mongodb-cloud.sh
+./scripts/backup-mongodb-cloud.sh
+
+# MongoDB Atlas tự động backup:
+# 1. Continuous Backup (M10+ clusters) - Point-in-time recovery
+# 2. Cloud Provider Snapshots - Daily snapshots
+# 3. On-demand Snapshots - Manual snapshots
+
+# Cấu hình backup trong Atlas Dashboard:
+# 1. Vào cluster -> Backup tab
+# 2. Enable Continuous Backup hoặc configure snapshot schedule
+# 3. Set retention period (tối thiểu 7 ngày)
+# 4. Test restore functionality
+```
+
+### 8.3 Monitoring với PM2
+```bash
+# Cài đặt PM2 monitoring
+pm2 install pm2-logrotate
+pm2 set pm2-logrotate:max_size 10M
+pm2 set pm2-logrotate:retain 7
+
+# Xem monitoring dashboard
+pm2 monit
+```
+
+---
+
+## 9. Troubleshooting
+
+### 9.1 Kiểm tra Services
+```bash
+# Kiểm tra services (chỉ nginx vì không có local database)
+sudo systemctl status nginx
+
+# Kiểm tra PM2
+pm2 status
+pm2 logs luv-app-be
+
+# Kiểm tra ports
+sudo netstat -tlnp | grep :3000
+sudo netstat -tlnp | grep :80
+sudo netstat -tlnp | grep :443
+```
+
+### 9.2 Kiểm tra Logs
+```bash
+# Nginx logs
+sudo tail -f /var/log/nginx/access.log
+sudo tail -f /var/log/nginx/error.log
+sudo tail -f /var/log/nginx/luv-app-be.access.log
+sudo tail -f /var/log/nginx/luv-app-be.error.log
+
+# Application logs
+pm2 logs luv-app-be
+tail -f /var/log/luv-app-be/app.log
+```
+
+### 9.3 Common Issues
+
+#### Ứng dụng không start được
+```bash
+# Kiểm tra environment variables
+pm2 env 0
+
+# Kiểm tra dependencies
+cd /var/www/luv-app-be
+npm ls
+
+# Restart ứng dụng
+pm2 restart luv-app-be
+```
+
+#### MongoDB Cloud connection error
+```bash
+# Test MongoDB Atlas connection
+mongosh "mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/luv-app"
+
+# Kiểm tra network connectivity
+ping cluster0.xxxxx.mongodb.net
+
+# Kiểm tra environment variables
+pm2 env 0
+
+# Common issues:
+# 1. IP không được whitelist trong Atlas
+# 2. Username/password không đúng
+# 3. Connection string format sai
+# 4. Network connectivity issues
+```
+
+#### Nginx 502 Bad Gateway
+```bash
+# Kiểm tra upstream server
+curl http://localhost:3000/health
+
+# Kiểm tra Nginx config
+sudo nginx -t
+
+# Restart services
+sudo systemctl restart nginx
+pm2 restart luv-app-be
+```
+
+---
+
+## 🎯 Deployment Script Automation
+
+Để deploy tự động, sử dụng script có sẵn:
+
+```bash
+# Cấp quyền execute
+chmod +x deploy.sh
+
+# Deploy production
+./deploy.sh production
+
+# Xem logs deployment
+tail -f /var/log/luv-app-be-deploy.log
+```
+
+---
+
+## 🔧 Performance Optimization
+
+### 1. Nginx Caching
+```nginx
+# Thêm vào server block
+location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+    expires 1y;
+    add_header Cache-Control "public, immutable";
+}
+```
+
+### 2. PM2 Cluster Mode
+```javascript
+// Trong ecosystem.config.js
+instances: 'max',  // Sử dụng tất cả CPU cores
+exec_mode: 'cluster'
+```
+
+### 3. MongoDB Atlas Performance
+```javascript
+// Tạo indexes trong Atlas UI hoặc via connection:
+// mongosh "mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/luv-app"
+
+// Tạo indexes cho performance
+db.users.createIndex({ email: 1 }, { unique: true })
+db.streams.createIndex({ createdAt: -1 })
+
+// MongoDB Atlas cung cấp:
+// - Performance Advisor cho index recommendations
+// - Real-time performance metrics
+// - Profiler để phân tích slow queries
+```
+
+---
+
+## 🔒 Security Best Practices
+
+1. **Thay đổi SSH port mặc định**
+2. **Cấu hình fail2ban**
+3. **Regular security updates**
+4. **Strong passwords và JWT secrets**
+5. **Rate limiting với Nginx**
+6. **MongoDB Atlas security (IP whitelist, VPC peering)**
+7. **Regular backups (Atlas automated backups)**
+8. **SSL/TLS encryption cho database connections**
+
+---
+
+## 📞 Support
+
+Nếu gặp vấn đề trong quá trình deployment, vui lòng:
+
+1. Kiểm tra logs chi tiết
+2. Verify tất cả services đang chạy
+3. Test từng component riêng biệt
+4. Kiểm tra network connectivity
+
+---
+
+**Chúc bạn deployment thành công! 🚀**
