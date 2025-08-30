@@ -5,12 +5,14 @@ import { UserResolver } from './user.resolver';
 import { User, UserSchema } from './schemas/user.schema';
 import { CommonModule } from '@src/common/common.module';
 import { AuthModule } from '@src/auth/auth.module';
+import { StreamModule } from '@src/stream/stream.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     CommonModule,
     forwardRef(() => AuthModule),
+    forwardRef(() => StreamModule),
   ],
   providers: [UserService, UserResolver],
   exports: [UserService],

@@ -1,0 +1,122 @@
+{
+  "info": {
+    "name": "Stream API Tests",
+    "description": "Collection để test Stream API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000/graphql"
+    },
+    {
+      "key": "authToken",
+      "value": "YOUR_JWT_TOKEN_HERE"
+    }
+  ],
+  "item": [
+    {
+      "name": "Public Queries",
+      "item": [
+        {
+          "name": "Get Streams",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query GetStreams($query: StreamsQueryDto) { streams(query: $query) { streams { _id title description category status privacy thumbnail_url user_id createdAt user { username display_name avatar_url } } meta { currentPage totalPages totalCount limit hasNext hasPrev } } }\",\n  \"variables\": {\n    \"query\": {\n      \"page\": 1,\n      \"limit\": 10,\n      \"status\": \"LIVE\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": ["{{baseUrl}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Stream Detail",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query GetStream($id: String!) { stream(id: $id) { _id title description category status privacy thumbnail_url media_url user_id createdAt updatedAt user { _id username display_name avatar_url } } }\",\n  \"variables\": {\n    \"id\": \"STREAM_ID_HERE\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": ["{{baseUrl}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authenticated Queries",
+      "item": [
+        {
+          "name": "Get My Streams",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query GetMyStreams($query: StreamsQueryDto) { myStreams(query: $query) { streams { _id title description category status privacy thumbnail_url media_url createdAt updatedAt } meta { currentPage totalPages totalCount } } }\",\n  \"variables\": {\n    \"query\": {\n      \"page\": 1,\n      \"limit\": 20\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": ["{{baseUrl}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mutations",
+      "item": [
+        {
+          "name": "Create Stream",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation CreateStream($input: CreateStreamDto!) { createStream(createStreamDto: $input) { _id title description category status privacy thumbnail_url media_url user_id createdAt updatedAt user { username display_name } } }\",\n  \"variables\": {\n    \"input\": {\n      \"title\": \"My Gaming Stream\",\n      \"description\": \"Playing the latest games live!\",\n      \"category\": \"Gaming\",\n      \"privacy\": \"PUBLIC\",\n      \"thumbnail_url\": \"https://example.com/thumbnail.jpg\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": ["{{baseUrl}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

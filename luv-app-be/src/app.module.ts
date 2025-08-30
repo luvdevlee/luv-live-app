@@ -15,6 +15,7 @@ import { CommonModule } from '@src/common/common.module';
 import { JwtCommonModule } from '@src/common/modules/jwt-common.module';
 import { AuthModule } from '@src/auth/auth.module';
 import { UserModule } from '@src/user/user.module';
+import { StreamModule } from '@src/stream/stream.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { UserModule } from '@src/user/user.module';
     JwtCommonModule,
     AuthModule,
     UserModule,
+    StreamModule,
 
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

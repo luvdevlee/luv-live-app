@@ -1,0 +1,267 @@
+# GraphQL Playground Test Queries
+# Copy và paste vào GraphQL Playground 
+
+# =================================
+# PUBLIC QUERIES (Không cần auth)
+# =================================
+
+# 1. Lấy danh sách streams
+query GetStreams {
+  streams(query: {
+    page: 1
+    limit: 10
+    status: LIVE
+  }) {
+    streams {
+      _id
+      title
+      description
+      category
+      status
+      privacy
+      thumbnail_url
+      user_id
+      createdAt
+      user {
+        username
+        display_name
+        avatar_url
+      }
+    }
+    meta {
+      currentPage
+      totalPages
+      totalCount
+      hasNext
+      hasPrev
+    }
+  }
+}
+
+# 2. Lấy chi tiết stream
+query GetStream($id: String!) {
+  stream(id: $id) {
+    _id
+    title
+    description
+    category
+    status
+    privacy
+    thumbnail_url
+    media_url
+    user_id
+    createdAt
+    updatedAt
+    user {
+      _id
+      username
+      display_name
+      avatar_url
+    }
+  }
+}
+
+# 3. Lấy streams của user
+query GetStreamsByUser($userId: String!) {
+  streamsByUser(userId: $userId) {
+    _id
+    title
+    description
+    status
+    privacy
+    thumbnail_url
+    createdAt
+    user {
+      username
+      display_name
+    }
+  }
+}
+
+# 4. Danh sách streams đơn giản
+query GetStreamsSimple {
+  streamsSimple {
+    _id
+    title
+    status
+    thumbnail_url
+    user_id
+  }
+}
+
+# =================================
+# AUTHENTICATED QUERIES (Cần JWT token)
+# =================================
+
+# 5. Lấy streams của tôi
+query GetMyStreams {
+  myStreams(query: {
+    page: 1
+    limit: 20
+  }) {
+    streams {
+      _id
+      title
+      description
+      category
+      status
+      privacy
+      thumbnail_url
+      media_url
+      createdAt
+      updatedAt
+    }
+    meta {
+      currentPage
+      totalPages
+      totalCount
+    }
+  }
+}
+
+# 6. Thống kê streams
+query GetStreamStats($userId: String) {
+  streamStats(userId: $userId) {
+    totalStreams
+    liveStreams
+    endedStreams
+    publicStreams
+    privateStreams
+  }
+}
+
+# 7. Tìm kiếm streams
+query SearchStreams {
+  streams(query: {
+    page: 1
+    limit: 10
+    search: "gaming"
+    category: "Gaming"
+    sortBy: "createdAt"
+    sortOrder: DESC
+  }) {
+    streams {
+      _id
+      title
+      description
+      category
+      status
+      privacy
+      user {
+        username
+      }
+    }
+    meta {
+      totalCount
+    }
+  }
+}
+
+# =================================
+# MUTATIONS (Cần JWT token)
+# =================================
+
+# 8. Tạo stream mới
+mutation CreateStream {
+  createStream(createStreamDto: {
+    title: "My Gaming Stream"
+    description: "Playing the latest games live!"
+    category: "Gaming"
+    privacy: PUBLIC
+    thumbnail_url: "https://example.com/thumbnail.jpg"
+  }) {
+    _id
+    title
+    description
+    category
+    status
+    privacy
+    thumbnail_url
+    media_url
+    user_id
+    createdAt
+    updatedAt
+    user {
+      username
+      display_name
+    }
+  }
+}
+
+# 9. Cập nhật stream
+mutation UpdateStream($id: String!) {
+  updateStream(
+    id: $id
+    updateStreamDto: {
+      title: "Updated Stream Title"
+      description: "Updated description"
+    }
+  ) {
+    _id
+    title
+    description
+    category
+    status
+    privacy
+    thumbnail_url
+    media_url
+    updatedAt
+  }
+}
+
+# 10. Kết thúc stream
+mutation EndStream($id: String!) {
+  endStream(id: $id) {
+    _id
+    status
+    updatedAt
+  }
+}
+
+# 11. Xóa stream
+mutation RemoveStream($id: String!) {
+  removeStream(id: $id)
+}
+
+# =================================
+# ADMIN QUERIES (Admin only)
+# =================================
+
+# 12. Tất cả streams (Admin)
+query GetStreamsAdmin {
+  streamsAdmin(query: {
+    page: 1
+    limit: 50
+    privacy: PRIVATE
+  }) {
+    streams {
+      _id
+      title
+      description
+      status
+      privacy
+      user_id
+      createdAt
+      user {
+        username
+        email
+      }
+    }
+    meta {
+      currentPage
+      totalPages
+      totalCount
+    }
+  }
+}
+
+# 13. Thống kê toàn cầu (Admin)
+query GetGlobalStreamStats {
+  globalStreamStats {
+    totalStreams
+    liveStreams
+    endedStreams
+    publicStreams
+    privateStreams
+  }
+}

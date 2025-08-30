@@ -1,5 +1,6 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { StreamStatus } from '../schemas/stream.schema';
+import { Status, PrivacyStatus } from '../schemas/stream.schema';
+import { UserResponse } from '@src/user/dto/user.response';
 
 @ObjectType()
 export class StreamResponse {
@@ -7,7 +8,7 @@ export class StreamResponse {
   _id: string;
 
   @Field(() => ID)
-  streamerId: string;
+  user_id: string;
 
   @Field()
   title: string;
@@ -16,38 +17,26 @@ export class StreamResponse {
   description?: string;
 
   @Field({ nullable: true })
-  thumbnail?: string;
+  category?: string;
 
-  @Field()
-  category: string;
+  @Field(() => Status)
+  status: Status;
 
-  @Field(() => StreamStatus)
-  status: StreamStatus;
-
-  @Field({ nullable: true })
-  scheduledAt?: Date;
+  @Field(() => PrivacyStatus)
+  privacy: PrivacyStatus;
 
   @Field({ nullable: true })
-  startedAt?: Date;
+  thumbnail_url?: string;
 
   @Field({ nullable: true })
-  endedAt?: Date;
-
-  @Field()
-  maxViewers: number;
-
-  @Field()
-  totalViewers: number;
-
-  @Field({ nullable: true })
-  streamKey?: string;
-
-  @Field({ nullable: true })
-  playbackUrl?: string;
+  media_url?: string;
 
   @Field()
   createdAt: Date;
 
   @Field()
   updatedAt: Date;
+
+  @Field(() => UserResponse, { nullable: true })
+  user?: UserResponse;
 }
