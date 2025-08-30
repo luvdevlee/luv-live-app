@@ -204,8 +204,8 @@ EOF
     # Apply secure config
     cp /etc/ssh/sshd_config.secure /etc/ssh/sshd_config
     
-    # Restart SSH service
-    systemctl restart sshd
+    # Restart SSH service (Ubuntu 24.04 uses 'ssh' not 'sshd')
+    systemctl restart ssh
     
     success "SSH secured"
 }

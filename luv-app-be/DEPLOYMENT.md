@@ -342,6 +342,7 @@ pm2 monit
 ```bash
 # Kiểm tra services (chỉ nginx vì không có local database)
 sudo systemctl status nginx
+sudo systemctl status ssh  # SSH service trên Ubuntu 24.04
 
 # Kiểm tra PM2
 pm2 status
@@ -351,6 +352,7 @@ pm2 logs luv-app-be
 sudo netstat -tlnp | grep :3000
 sudo netstat -tlnp | grep :80
 sudo netstat -tlnp | grep :443
+sudo netstat -tlnp | grep :22   # SSH port
 ```
 
 ### 9.2 Kiểm tra Logs
@@ -379,6 +381,27 @@ npm ls
 
 # Restart ứng dụng
 pm2 restart luv-app-be
+```
+
+#### SSH connection issues
+```bash
+# Check SSH service status
+sudo systemctl status ssh
+
+# Restart SSH service
+sudo systemctl restart ssh
+
+# Check SSH configuration
+sudo sshd -t
+
+# View SSH logs
+sudo journalctl -u ssh -f
+
+# Common SSH issues on Ubuntu 24.04:
+# 1. Service name is 'ssh' not 'sshd'
+# 2. Check firewall allows SSH: sudo ufw status
+# 3. Verify SSH port in /etc/ssh/sshd_config
+# 4. Check fail2ban hasn't blocked your IP
 ```
 
 #### MongoDB Cloud connection error
