@@ -68,7 +68,9 @@ export class UserService {
       if (error instanceof ConflictException) {
         throw error;
       }
-
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
       this.logger.error(`Register failed: ${error.message}`, error.stack);
       throw new BadRequestException('Failed to register!');
     }
