@@ -10,10 +10,12 @@ import "@/app/globals.css";
 
 interface User {
   id: string;
-  userName: string;
-  displayName: string;
+  username: string;
+  display_name: string;
   avatar?: string;
   email: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export default function Header() {
@@ -305,7 +307,7 @@ export default function Header() {
                   {user.avatar ? (
                     <Image
                       src={user.avatar}
-                      alt={`${user.displayName} avatar`}
+                      alt={`${user.display_name} avatar`}
                       width={32}
                       height={32}
                       className="rounded-full"
@@ -323,14 +325,14 @@ export default function Header() {
                   <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
                     <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
                       <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {user.displayName}
+                        {user.display_name}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        @{user.userName}
+                        @{user.username}
                       </p>
                     </div>
                     <Link
-                      href={`/profile/${user.userName}`}
+                      href={"/my-info"}
                       className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       Hồ sơ

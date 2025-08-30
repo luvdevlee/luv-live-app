@@ -28,7 +28,7 @@ const liveshowData: LiveshowCard[] = [
     streamerName: "Linh Thỏ",
     userName: "linh-tho",
     title: "Mưa bùn quóo",
-    profileImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkwMYthqutaftuxz8RK9vaEJyrSPvvNDJvwA&s",
+    profileImage: "https://i.pinimg.com/736x/c3/a2/cf/c3a2cfe35a483929dc954bcc915d75da.jpg",
     viewers: 892,
     category: "Live Idol"
   },
@@ -37,7 +37,7 @@ const liveshowData: LiveshowCard[] = [
     streamerName: "StreamQueen",
     userName: "stream-queen",
     title: "Tâm sự tủi pink",
-    profileImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSe7WFuqadM31NIdbwsGUPsWgRc8gbmzHo-IQ&s",
+    profileImage: "https://i.pinimg.com/1200x/d1/c8/30/d1c830340acf294aa4258e6b75db19bc.jpg",
     viewers: 634,
     category: "New Idol"
   },
@@ -46,7 +46,7 @@ const liveshowData: LiveshowCard[] = [
     streamerName: "Công chúa",
     userName: "cong-chua",
     title: "Cảnh báo động!!",
-    profileImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyI20h0NZPVnW0-9rdzBhDfMjDlohvZFDP4Q&s",
+    profileImage: "https://i.pinimg.com/736x/36/f1/c5/36f1c5627aadbd4feb2d8156a6870db5.jpg",
     viewers: 445,
     category: "Live Idol"
   },
@@ -55,7 +55,7 @@ const liveshowData: LiveshowCard[] = [
     streamerName: "NaNa",
     userName: "nana",
     title: "Em bé ne",
-    profileImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPEMaTW7A559ftA5lkv9j-iFoee6f5-SsClw&s",
+    profileImage: "https://i.pinimg.com/736x/4b/9e/56/4b9e56c2d2ac407d193a62b17e1630b4.jpg",
     viewers: 328,
     category: "Live Idol"
   },
@@ -64,7 +64,7 @@ const liveshowData: LiveshowCard[] = [
     streamerName: "Sếp Linh",
     userName: "sep-linh",
     title: "ỦA EMMM!!",
-    profileImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6AaDGvGUd_jz2-hV32OLGJNmPAJ6HNejzqw&s",
+    profileImage: "https://i.pinimg.com/736x/59/a1/c9/59a1c950009d81905fa63a9c5a64bc7c.jpg",
     viewers: 267,
     category: "Live Idol"
   },
@@ -73,7 +73,7 @@ const liveshowData: LiveshowCard[] = [
     streamerName: "Lina Youne",
     userName: "lina-youne",
     title: "Có zô hong thì bảo",
-    profileImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRU4mgtZXEqveFGpBVDal_zA71hV8oMjZdtHw&s",
+    profileImage: "https://i.pinimg.com/736x/c1/aa/58/c1aa5877f62ec0e670d1c8bb83379639.jpg",
     viewers: 189,
     category: "Live Idol"
   },
@@ -82,7 +82,7 @@ const liveshowData: LiveshowCard[] = [
     streamerName: "Minaa",
     userName: "minaa",
     title: "Chúa hề nèee",
-    profileImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7h9BQ-ir6YffxX7onxNsMi47Krd6y-Xae7A&s",
+    profileImage: "https://i.pinimg.com/736x/4e/22/ef/4e22efe654e8ae8ae1f65b7adc1bddfc.jpg",
     viewers: 156,
     category: "New Idol"
   },
@@ -91,7 +91,7 @@ const liveshowData: LiveshowCard[] = [
     streamerName: "Bella Rose",
     userName: "bella-rose",
     title: "Chill cùng em",
-    profileImage: "https://picsum.photos/400/300?random=20",
+    profileImage: "https://i.pinimg.com/736x/01/7f/20/017f20761184d6248b5ebcf421c349dc.jpg",
     viewers: 145,
     category: "Live Idol"
   },
@@ -100,7 +100,7 @@ const liveshowData: LiveshowCard[] = [
     streamerName: "Candy Sweet",
     userName: "candy-sweet",
     title: "Karaoke night",
-    profileImage: "https://picsum.photos/400/300?random=21",
+    profileImage: "https://i.pinimg.com/736x/5a/9f/19/5a9f19fe064921b0c549eb0b82a2b350.jpg",
     viewers: 134,
     category: "New Idol"
   }

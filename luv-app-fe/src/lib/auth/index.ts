@@ -5,7 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export interface RegisterData {
   email: string;
   password: string;
-  userName: string;
+  username: string;
   display_name?: string; // backend hiện không cần, để optional
 }
 
@@ -26,7 +26,7 @@ export const register = async (data: RegisterData) => {
     `,
     variables: {
       data: {
-        username: data.userName,
+        username: data.username,
         email: data.email,
         password: data.password,
         display_name: data.display_name
@@ -51,6 +51,7 @@ export const login = async (data: LoginData) => {
             username
             email
             role
+            last_login_at
             createdAt
             updatedAt
           }

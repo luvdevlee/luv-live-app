@@ -16,7 +16,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    userName: '',
+    username: '',
     display_name: '',
     agreeTerms: false
   });
@@ -28,7 +28,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
       setFormData({
         email: '',
         password: '',
-        userName: '',
+        username: '',
         display_name: '',
         agreeTerms: false
       });
@@ -47,76 +47,89 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     try {
       setLoading(true);
-
+  
       let res;
       if (mode === "register") {
         res = await register({
           email: formData.email,
           password: formData.password,
-          userName: formData.userName,
-          display_name: formData.display_name,
+          username: formData.username,         // ✅ backend: username
+          display_name: formData.display_name, // ✅ backend: display_name
         });
-
+  
         if (res.data.errors) {
           throw new Error(res.data.errors[0].message || "Đăng ký thất bại");
         }
-
+  
         const tokens = res.data.data.register;
         console.log("✅ Đăng ký thành công:", tokens);
-
+  
         localStorage.setItem("access_token", tokens.access_token);
         localStorage.setItem("refresh_token", tokens.refresh_token);
-
-        // Create user object from registration data
+  
+        // ✅ user object đúng schema backend
         const userData = {
-          id: tokens.user?.id || '1',
-          userName: formData.userName,
-          displayName: formData.display_name,
-          email: formData.email,
-          avatar: tokens.user?.avatar || undefined
+          id: tokens.user?._id,
+          username: tokens.user?.username,
+          display_name: tokens.user?.display_name,
+          email: tokens.user?.email,
+          avatar_url: tokens.user?.avatar_url,
+          role: tokens.user?.role,
+          last_login_at: tokens.user?.last_login_at,
+          is_active: tokens.user?.is_active,
+          createdAt: tokens.user?.createdAt,
+          updatedAt: tokens.user?.updatedAt,
         };
-
+  
+        // Lưu user info vào localStorage (tiện cho reload)
+        localStorage.setItem("user_info", JSON.stringify(userData));
+  
         // Emit login success event
-        const loginSuccessEvent = new CustomEvent('loginSuccess', {
-          detail: { user: userData }
+        const loginSuccessEvent = new CustomEvent("loginSuccess", {
+          detail: { user: userData },
         });
         window.dispatchEvent(loginSuccessEvent);
-
+  
       } else {
         res = await login({
           email: formData.email,
           password: formData.password,
         });
-
+  
         if (res.data.errors) {
           throw new Error(res.data.errors[0].message || "Đăng nhập thất bại");
         }
-
+  
         const tokens = res.data.data.login;
         console.log("✅ Đăng nhập thành công:", tokens);
-
+  
         localStorage.setItem("access_token", tokens.access_token);
         localStorage.setItem("refresh_token", tokens.refresh_token);
-
-        // Create user object from login data
+  
         const userData = {
-          id: tokens.user?.id || '1',
-          userName: tokens.user?.userName || formData.email.split('@')[0],
-          displayName: tokens.user?.displayName || formData.email.split('@')[0],
-          email: formData.email,
-          avatar: tokens.user?.avatar || undefined
+          id: tokens.user?._id,
+          username: tokens.user?.username,
+          display_name: tokens.user?.display_name,
+          email: tokens.user?.email,
+          avatar_url: tokens.user?.avatar_url,
+          last_login_at: tokens.user?.last_login_at,
+          role: tokens.user?.role,
+          is_active: tokens.user?.is_active,
+          createdAt: tokens.user?.createdAt,
+          updatedAt: tokens.user?.updatedAt,
         };
-
-        // Emit login success event
-        const loginSuccessEvent = new CustomEvent('loginSuccess', {
-          detail: { user: userData }
+  
+        localStorage.setItem("user_info", JSON.stringify(userData));
+  
+        const loginSuccessEvent = new CustomEvent("loginSuccess", {
+          detail: { user: userData },
         });
         window.dispatchEvent(loginSuccessEvent);
       }
-
+  
       onClose();
     } catch (err: unknown) {
       console.error("❌ Lỗi:", (err as Error).message);
@@ -125,6 +138,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
       setLoading(false);
     }
   };
+  
 
 
   const handleGoogleLogin = () => {
@@ -189,12 +203,12 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
 
             {mode === 'register' && (
               <div className="form-group">
-                <label htmlFor="userName" className="form-label">Username</label>
+                <label htmlFor="username" className="form-label">Username</label>
                 <input
                   type="text"
-                  id="userName"
-                  name="userName"
-                  value={formData.userName}
+                  id="username"
+                  name="username"
+                  value={formData.username}
                   onChange={handleInputChange}
                   className="form-input"
                   placeholder="Nhập username của bạn"
