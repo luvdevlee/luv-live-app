@@ -23,6 +23,7 @@ export class RegisterUserDto {
   email: string;
 
   @Field()
+  @IsString()
   @IsStrongPassword(
     {
       minLength: 8,
