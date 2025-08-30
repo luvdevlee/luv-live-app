@@ -6,6 +6,7 @@ import { Moon, Sun, ChevronDown, User, LogOut } from "lucide-react";
 import { useTheme } from "@/hooks";
 import { AuthModal } from "@/components/forms";
 import Image from "next/image";
+import "@/app/globals.css";
 
 interface User {
   id: string;

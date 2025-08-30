@@ -51,6 +51,8 @@ export const login = async (data: LoginData) => {
             username
             email
             role
+            createdAt
+            updatedAt
           }
         }
       }

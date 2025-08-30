@@ -1379,7 +1379,7 @@ body {
 /* Leaderboard Header */
 .leaderboard-header {
   padding: 1.5rem;
-  background: linear-gradient(135deg, var(--primary), #ee4d4d);
+  background: linear-gradient(135deg, #330867, #30cfd0);
   color: white;
   text-align: center;
 }
