@@ -1,10 +1,19 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { Moon, Sun, ChevronDown } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Moon, Sun, ChevronDown, User, LogOut } from "lucide-react";
 import { useTheme } from "@/hooks";
 import { AuthModal } from "@/components/forms";
+import Image from "next/image";
+
+interface User {
+  id: string;
+  userName: string;
+  displayName: string;
+  avatar?: string;
+  email: string;
+}
 
 export default function Header() {
   const { theme, toggleTheme } = useTheme();
@@ -14,6 +23,61 @@ export default function Header() {
     mode: 'login'
   });
   const [livesDropdown, setLivesDropdown] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [userDropdown, setUserDropdown] = useState(false);
+
+  // Check if user is logged in on component mount
+  useEffect(() => {
+    const accessToken = localStorage.getItem("access_token");
+    if (accessToken) {
+      // Try to get user info from localStorage or decode token
+      const userInfo = localStorage.getItem("user_info");
+      if (userInfo) {
+        try {
+          setUser(JSON.parse(userInfo));
+        } catch (error) {
+          console.error("Error parsing user info:", error);
+        }
+      }
+    }
+  }, []);
+
+  // Listen for login success from AuthModal
+  useEffect(() => {
+    const handleLoginSuccess = (event: CustomEvent) => {
+      const { user: userData } = event.detail;
+      setUser(userData);
+      localStorage.setItem("user_info", JSON.stringify(userData));
+    };
+
+    window.addEventListener('loginSuccess', handleLoginSuccess as EventListener);
+    
+    return () => {
+      window.removeEventListener('loginSuccess', handleLoginSuccess as EventListener);
+    };
+  }, []);
+
+  // Close user dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      const userDropdown = target.closest('.user-dropdown-container');
+      
+      if (userDropdown) {
+        return; // Click is inside the dropdown
+      }
+      
+      setUserDropdown(false);
+    };
+
+    if (userDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [userDropdown]);
 
   const openAuthModal = (mode: 'login' | 'register') => {
     setAuthModal({ isOpen: true, mode });
@@ -21,6 +85,17 @@ export default function Header() {
 
   const closeAuthModal = () => {
     setAuthModal({ isOpen: false, mode: 'login' });
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("user_info");
+    setUser(null);
+    setUserDropdown(false);
+    
+    // Redirect to home page after logout
+    window.location.href = "/";
   };
 
   const navItems = [
@@ -214,21 +289,84 @@ export default function Header() {
             {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
           </button>
 
-          {/* Auth buttons */}
-          <div className="auth-buttons flex items-center gap-3">
-            <button 
-              onClick={() => openAuthModal('register')}
-              className="btn-gradient"
-            >
-              Đăng ký
-            </button>
-            <button 
-              onClick={() => openAuthModal('login')}
-              className="btn-gradient"
-            >
-              Đăng nhập
-            </button>
-          </div>
+          {/* Auth buttons or User Avatar */}
+          {user ? (
+            <div className="auth-buttons flex items-center gap-3">
+              <div className="relative user-dropdown-container">
+                <button
+                  onClick={() => setUserDropdown(!userDropdown)}
+                  className="flex items-center gap-2 p-2 rounded-full transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+                  style={{
+                    backgroundColor: "var(--header-button-bg)",
+                    color: "var(--header-text)"
+                  }}
+                >
+                  {user.avatar ? (
+                    <Image
+                      src={user.avatar}
+                      alt={`${user.displayName} avatar`}
+                      width={32}
+                      height={32}
+                      className="rounded-full"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                      <User size={16} className="text-white" />
+                    </div>
+                  )}
+                  <ChevronDown size={14} />
+                </button>
+
+                {/* User Dropdown Menu */}
+                {userDropdown && (
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
+                    <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {user.displayName}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        @{user.userName}
+                      </p>
+                    </div>
+                    <Link
+                      href={`/profile/${user.userName}`}
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      Hồ sơ
+                    </Link>
+                    <Link
+                      href="/settings"
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      Cài đặt
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                    >
+                      <LogOut size={14} />
+                      Đăng xuất
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="auth-buttons flex items-center gap-3">
+              <button 
+                onClick={() => openAuthModal('register')}
+                className="btn-gradient"
+              >
+                Đăng ký
+              </button>
+              <button 
+                onClick={() => openAuthModal('login')}
+                className="btn-gradient"
+              >
+                Đăng nhập
+              </button>
+            </div>
+          )}
         </div>
       </div>
       

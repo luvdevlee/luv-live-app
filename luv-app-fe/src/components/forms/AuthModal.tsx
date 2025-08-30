@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import {register} from "@/lib/auth/index";
+import { register,login } from "@/lib/auth/index";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -50,23 +50,72 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
 
     try {
       setLoading(true);
-      const res = await register({
-        email: formData.email,
-        password: formData.password,
-        userName: formData.userName,
-        display_name: formData.display_name,
-      });
 
-      if (res.data.errors) {
-        throw new Error(res.data.errors[0].message || "Đăng ký thất bại");
+      let res;
+      if (mode === "register") {
+        res = await register({
+          email: formData.email,
+          password: formData.password,
+          userName: formData.userName,
+          display_name: formData.display_name,
+        });
+
+        if (res.data.errors) {
+          throw new Error(res.data.errors[0].message || "Đăng ký thất bại");
+        }
+
+        const tokens = res.data.data.register;
+        console.log("✅ Đăng ký thành công:", tokens);
+
+        localStorage.setItem("access_token", tokens.access_token);
+        localStorage.setItem("refresh_token", tokens.refresh_token);
+
+        // Create user object from registration data
+        const userData = {
+          id: tokens.user?.id || '1',
+          userName: formData.userName,
+          displayName: formData.display_name,
+          email: formData.email,
+          avatar: tokens.user?.avatar || undefined
+        };
+
+        // Emit login success event
+        const loginSuccessEvent = new CustomEvent('loginSuccess', {
+          detail: { user: userData }
+        });
+        window.dispatchEvent(loginSuccessEvent);
+
+      } else {
+        res = await login({
+          email: formData.email,
+          password: formData.password,
+        });
+
+        if (res.data.errors) {
+          throw new Error(res.data.errors[0].message || "Đăng nhập thất bại");
+        }
+
+        const tokens = res.data.data.login;
+        console.log("✅ Đăng nhập thành công:", tokens);
+
+        localStorage.setItem("access_token", tokens.access_token);
+        localStorage.setItem("refresh_token", tokens.refresh_token);
+
+        // Create user object from login data
+        const userData = {
+          id: tokens.user?.id || '1',
+          userName: tokens.user?.userName || formData.email.split('@')[0],
+          displayName: tokens.user?.displayName || formData.email.split('@')[0],
+          email: formData.email,
+          avatar: tokens.user?.avatar || undefined
+        };
+
+        // Emit login success event
+        const loginSuccessEvent = new CustomEvent('loginSuccess', {
+          detail: { user: userData }
+        });
+        window.dispatchEvent(loginSuccessEvent);
       }
-
-      const tokens = res.data.data.register;
-      console.log("✅ Đăng ký thành công:", tokens);
-
-      // Lưu token để dùng sau
-      localStorage.setItem("access_token", tokens.access_token);
-      localStorage.setItem("refresh_token", tokens.refresh_token);
 
       onClose();
     } catch (err: any) {
@@ -76,6 +125,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
       setLoading(false);
     }
   };
+
 
   const handleGoogleLogin = () => {
     console.log('Google login clicked');
@@ -136,43 +186,45 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="auth-form">
+
+            {mode === 'register' && (
+              <div className="form-group">
+                <label htmlFor="userName" className="form-label">Username</label>
+                <input
+                  type="text"
+                  id="userName"
+                  name="userName"
+                  value={formData.userName}
+                  onChange={handleInputChange}
+                  className="form-input"
+                  placeholder="Nhập username của bạn"
+                  required
+                />
+              </div>
+            )}
+
+
             <div className="form-group">
-              <label htmlFor="userName" className="form-label">Username</label>
+              <label htmlFor="email" className="form-label">Email</label>
               <input
-                type="text"
-                id="userName"
-                name="userName"
-                value={formData.userName}
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
                 onChange={handleInputChange}
                 className="form-input"
-                placeholder="Nhập username của bạn"
+                placeholder="Nhập email của bạn"
                 required
               />
             </div>
 
             {mode === 'register' && (
               <div className="form-group">
-                <label htmlFor="email" className="form-label">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="form-input"
-                  placeholder="Nhập email của bạn"
-                  required
-                />
-              </div>
-            )}
-
-            {mode === 'register' && (
-              <div className="form-group">
-                <label htmlFor="displayName" className="form-label">Tên hiển thị</label>
+                <label htmlFor="display_name" className="form-label">Tên hiển thị</label>
                 <input
                   type="text"
-                  id="displayName"
-                  name="displayName"
+                  id="display_name"
+                  name="display_name"
                   value={formData.display_name}
                   onChange={handleInputChange}
                   className="form-input"
