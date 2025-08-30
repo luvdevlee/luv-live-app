@@ -1,9 +1,11 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
-import { UseGuards, UnauthorizedException } from '@nestjs/common';
+import { UseGuards, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User, UserRole } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserResponse } from './dto/user.response';
+import { UsersQueryDto } from './dto/users-query.dto';
+import { UsersPaginatedResponse } from './dto/users-paginated.response';
 import { CurrentUser } from '@src/common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '@src/auth/guards/jwt-auth.guard';
 import type { AuthUser } from './dto/auth-user.dto';
@@ -27,16 +29,33 @@ export class UserResolver {
     return user;
   }
 
-  @Query(() => [UserResponse], {
+  @UseGuards(JwtAuthGuard)
+  @Query(() => UsersPaginatedResponse, {
     name: 'users',
-    description: 'Get all active users (admin only)',
+    description: 'Get users with pagination and filtering (admin only)',
   })
-  async findAll(): Promise<User[]> {
-    const users = await this.userService.findAll();
-    return users.map((user) => ({
-      ...user,
-      _id: user._id.toString(),
-    }));
+  async findAllPaginated(
+    @Args('query', { type: () => UsersQueryDto, nullable: true }) query: UsersQueryDto = new UsersQueryDto(),
+    @CurrentUser() currentUser: AuthUser,
+  ): Promise<UsersPaginatedResponse> {
+    if (currentUser.role !== UserRole.ADMIN) {
+      throw new UnauthorizedException('Only admins can access user list');
+    }
+
+    return this.userService.findAllPaginated(query);
+  }
+
+  @Query(() => [UserResponse], {
+    name: 'usersSimple',
+    description: 'Get simple list of active users (for backward compatibility)',
+  })
+  async findAll(): Promise<UserResponse[]> {
+    const result = await this.userService.findAllPaginated({
+      page: 1,
+      limit: 100,
+      is_active: true,
+    });
+    return result.users;
   }
 
   @UseGuards(JwtAuthGuard)
@@ -78,5 +97,38 @@ export class UserResolver {
       throw new UnauthorizedException('You are not authenticated');
     }
     return this.userService.findOne(currentUser.sub);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => Boolean, {
+    description: 'Deactivate user (soft delete - admin only)',
+  })
+  async removeUser(
+    @Args('userId', { type: () => String }) userId: string,
+    @CurrentUser() currentUser: AuthUser,
+  ): Promise<boolean> {
+    if (currentUser.sub.toString() !== userId) {
+      throw new BadRequestException('Cannot remove other users');
+    }
+    return this.userService.removeUser(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => Boolean, {
+    description: 'Permanently delete user (hard delete - admin only)',
+  })
+  async deleteUser(
+    @Args('userId', { type: () => String }) userId: string,
+    @CurrentUser() currentUser: AuthUser,
+  ): Promise<boolean> {
+    if (currentUser.role !== UserRole.ADMIN) {
+      throw new UnauthorizedException('Only admins can delete users');
+    }
+
+    if (currentUser.sub.toString() === userId) {
+      throw new BadRequestException('You cannot delete yourself');
+    }
+
+    return this.userService.deleteUser(userId);
   }
 }

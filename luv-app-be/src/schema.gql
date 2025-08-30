@@ -38,6 +38,9 @@ type Mutation {
   """Create a new user (admin only)"""
   createUser(createUserDto: CreateUserDto!): UserResponse!
 
+  """Permanently delete user (hard delete - admin only)"""
+  deleteUser(userId: String!): Boolean!
+
   """Login with email and password"""
   login(loginInput: LoginInput!): AuthResponse!
 
@@ -49,6 +52,18 @@ type Mutation {
 
   """Register a new account"""
   register(registerUserDto: RegisterUserDto!): AuthResponse!
+
+  """Deactivate user (soft delete - admin only)"""
+  removeUser(userId: String!): Boolean!
+}
+
+type PaginationMeta {
+  currentPage: Int!
+  hasNext: Boolean!
+  hasPrev: Boolean!
+  limit: Int!
+  totalCount: Int!
+  totalPages: Int!
 }
 
 type Query {
@@ -61,8 +76,11 @@ type Query {
   """Get user by username (public)"""
   userByUsername(username: String!): UserResponse!
 
-  """Get all active users (admin only)"""
-  users: [UserResponse!]!
+  """Get users with pagination and filtering (admin only)"""
+  users(query: UsersQueryDto): UsersPaginatedResponse!
+
+  """Get simple list of active users (for backward compatibility)"""
+  usersSimple: [UserResponse!]!
 }
 
 input RefreshTokenInput {
@@ -84,28 +102,28 @@ input RegisterUserDto {
 type User {
   _id: ID!
   avatar_url: String
-  created_at: DateTime!
+  createdAt: DateTime!
   display_name: String
   email: String!
   google_id: String
   is_active: Boolean!
   last_login_at: DateTime
   role: UserRole!
-  updated_at: DateTime!
+  updatedAt: DateTime!
   username: String!
 }
 
 type UserResponse {
   _id: ID!
   avatar_url: String
-  created_at: DateTime!
+  createdAt: DateTime!
   display_name: String
   email: String!
   google_id: String
   is_active: Boolean!
   last_login_at: DateTime
   role: UserRole!
-  updated_at: DateTime!
+  updatedAt: DateTime!
   username: String!
 }
 
@@ -114,4 +132,23 @@ enum UserRole {
   ADMIN
   STREAMER
   VIEWER
+}
+
+type UsersPaginatedResponse {
+  meta: PaginationMeta!
+  users: [UserResponse!]!
+}
+
+input UsersQueryDto {
+  is_active: Boolean
+  limit: Int = 10
+  page: Int = 1
+  role: UserRole
+
+  """Search by username, email, display_name"""
+  search: String
+
+  """Sort by: createdAt, updatedAt, username, email"""
+  sortBy: String = "createdAt"
+  sortOrder: String = "DESC"
 }

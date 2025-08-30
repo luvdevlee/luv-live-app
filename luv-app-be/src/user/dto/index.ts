@@ -1,6 +1,9 @@
-export { CreateUserDto } from './create-user.dto';
-export { RegisterUserDto } from './register-user.dto';
-export { UpdateUserDto } from './update-user.dto';
-export { UserResponse } from './user.response';
-export { ChangePasswordDto } from './change-password.dto';
-export { UserStatsResponse } from './user-stats.response';
+export * from './create-user.dto';
+export * from './register-user.dto';
+export * from './update-user.dto';
+export * from './user.response';
+export * from './user-stats.response';
+export * from './auth-user.dto';
+export * from './change-password.dto';
+export * from './users-query.dto';
+export * from './users-paginated.response';
