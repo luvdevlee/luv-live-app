@@ -1,5 +1,6 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { UserRole } from '../schemas/user.schema';
+import { StreamResponse } from '@src/stream/dto/stream.response';
 
 @ObjectType()
 export class UserResponse {
@@ -35,4 +36,8 @@ export class UserResponse {
 
   @Field()
   updatedAt: Date;
+
+  // Field resolver sẽ được thêm trong resolver
+  @Field(() => [StreamResponse], { nullable: true })
+  streams?: StreamResponse[];
 }
