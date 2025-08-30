@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 interface StreamerRanking {
   id: string;
   rank: number;
@@ -161,7 +163,12 @@ export default function BestPerformance() {
                   
                   <div className="streamer-section">
                     <div className="streamer-avatar">
-                      <img src={streamer.avatar} alt={streamer.name} />
+                      <Image  
+                        src={streamer.avatar} alt={streamer.name}
+                        width={50}
+                        height={50}
+                        unoptimized
+                      />
                     </div>
                     <div className="streamer-details">
                       <span className="streamer-name">{streamer.name}</span>
@@ -200,7 +207,12 @@ export default function BestPerformance() {
                   
                   <div className="streamer-section">
                     <div className="streamer-avatar">
-                      <img src={streamer.avatar} alt={streamer.name} />
+                      <Image  
+                        src={streamer.avatar} alt={streamer.name}
+                        width={50}
+                        height={50}
+                        unoptimized
+                      />
                     </div>
                     <div className="streamer-details">
                       <span className="streamer-name">{streamer.name}</span>
