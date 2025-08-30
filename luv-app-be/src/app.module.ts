@@ -1,23 +1,20 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { join } from 'path';
 import { APP_GUARD } from '@nestjs/core';
+import { join } from 'path';
 
 import { JwtAuthGuard } from '@src/auth/guards/jwt-auth.guard';
-
-import appConfig from './common/config/app.config';
-import databaseConfig from './common/config/database.config';
-import jwtConfig from './common/config/jwt.config';
-
-import { DatabaseModule } from './database/mongodb.module';
+import { Environment } from '@src/common/enums/environment.enum';
+import appConfig from '@src/common/config/app.config';
+import databaseConfig from '@src/common/config/database.config';
+import jwtConfig from '@src/common/config/jwt.config';
+import { DatabaseModule } from '@src/database/mongodb.module';
 import { CommonModule } from '@src/common/common.module';
 import { JwtCommonModule } from '@src/common/modules/jwt-common.module';
 import { AuthModule } from '@src/auth/auth.module';
 import { UserModule } from '@src/user/user.module';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -47,9 +44,8 @@ import { AppService } from './app.service';
       }),
     }),
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [
-    AppService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
@@ -57,3 +53,4 @@ import { AppService } from './app.service';
   ],
 })
 export class AppModule {}
+
